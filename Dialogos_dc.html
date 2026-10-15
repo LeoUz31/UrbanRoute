@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>UrbanRoute · Diálogos JOptionPane</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1D4ED8}a:hover{color:#1E3A8A}
+</style>
+</helmet>
+<div style="width: 1540px; height: 360px; box-sizing: border-box; padding: 32px 40px; display: flex; gap: 40px; align-items: flex-start; background: #E9ECF1; font-family: 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif; color: #1D2939">
+
+  <div style="width: 460px; display: flex; flex-direction: column; gap: 12px">
+    <div style="font-size: 13px; font-weight: 700; color: #344054">3.1 · Alerta de datos sin guardar · WARNING_MESSAGE</div>
+    <div style="background: #FFFFFF; border: 1px solid #8A94A6; border-radius: 8px; box-shadow: 0 16px 32px rgba(16,24,40,0.18); overflow: hidden">
+      <div style="height: 34px; display: flex; align-items: center; justify-content: space-between; padding: 0 6px 0 14px; background: #EEF0F3; border-bottom: 1px solid #C3C9D2; font-size: 13px; font-weight: 600">Cambios sin guardar<button type="button" aria-label="Cerrar diálogo" style="width: 30px; height: 26px; border: 0; background: transparent"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M0 0l10 10M10 0L0 10" stroke="#1D2939" stroke-width="1.3"></path></svg></button></div>
+      <div style="display: flex; gap: 16px; padding: 20px 20px 8px">
+        <svg width="40" height="40" viewBox="0 0 40 40" role="img" aria-label="Advertencia" style="flex: none"><path d="M20 4L38 35H2Z" fill="#F59E0B"></path><path d="M20 15v10" stroke="#1D2939" stroke-width="3" stroke-linecap="round"></path><circle cx="20" cy="30" r="1.8" fill="#1D2939"></circle></svg>
+        <div style="font-size: 14px; line-height: 1.5">Hay cambios en la red que no se han guardado en el archivo.<br>¿Desea guardarlos antes de continuar?</div>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 8px; padding: 12px 20px 18px">
+        <button type="button" style="height: 32px; padding: 0 16px; border: 1px solid #1D4ED8; background: #1D4ED8; color: #FFFFFF; border-radius: 4px; font: inherit; font-size: 13px; font-weight: 600">Guardar</button>
+        <button type="button" style="height: 32px; padding: 0 14px; border: 1px solid #98A2B3; background: #FFFFFF; color: #1D2939; border-radius: 4px; font: inherit; font-size: 13px">No guardar</button>
+        <button type="button" style="height: 32px; padding: 0 14px; border: 1px solid #98A2B3; background: #FFFFFF; color: #1D2939; border-radius: 4px; font: inherit; font-size: 13px">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="width: 460px; display: flex; flex-direction: column; gap: 12px">
+    <div style="font-size: 13px; font-weight: 700; color: #344054">3.2 · Error de parseo · ERROR_MESSAGE</div>
+    <div style="background: #FFFFFF; border: 1px solid #8A94A6; border-radius: 8px; box-shadow: 0 16px 32px rgba(16,24,40,0.18); overflow: hidden">
+      <div style="height: 34px; display: flex; align-items: center; justify-content: space-between; padding: 0 6px 0 14px; background: #EEF0F3; border-bottom: 1px solid #C3C9D2; font-size: 13px; font-weight: 600">Error de lectura del archivo<button type="button" aria-label="Cerrar diálogo" style="width: 30px; height: 26px; border: 0; background: transparent"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M0 0l10 10M10 0L0 10" stroke="#1D2939" stroke-width="1.3"></path></svg></button></div>
+      <div style="display: flex; gap: 16px; padding: 20px 20px 8px">
+        <svg width="40" height="40" viewBox="0 0 40 40" role="img" aria-label="Error" style="flex: none"><circle cx="20" cy="20" r="18" fill="#D92D20"></circle><path d="M13 13l14 14M27 13L13 27" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"></path></svg>
+        <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px">
+          <div style="font-size: 14px; line-height: 1.5">Se omitieron 2 líneas con formato inválido.<br><span style="color: #475467; font-size: 13px">Cargadas: 21 válidas · Omitidas: 2</span></div>
+          <div style="height: 84px; overflow-y: auto; box-sizing: border-box; padding: 8px 10px; border: 1px solid #C3C9D2; border-radius: 4px; background: #F9FAFB; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 12px; line-height: 1.5; white-space: pre-line">Línea 12: "E11,Mercado,,Z2"
+→ campo vacío (Linea)
+Línea 19: "Museo,Parque,x"
+→ tiempo no numérico</div>
+        </div>
+      </div>
+      <div style="display: flex; justify-content: flex-end; padding: 10px 20px 16px">
+        <button type="button" style="height: 32px; padding: 0 20px; border: 1px solid #1D4ED8; background: #1D4ED8; color: #FFFFFF; border-radius: 4px; font: inherit; font-size: 13px; font-weight: 600">Aceptar</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="width: 460px; display: flex; flex-direction: column; gap: 12px">
+    <div style="font-size: 13px; font-weight: 700; color: #344054">3.3 · Ruta inexistente · INFORMATION_MESSAGE</div>
+    <div style="background: #FFFFFF; border: 1px solid #8A94A6; border-radius: 8px; box-shadow: 0 16px 32px rgba(16,24,40,0.18); overflow: hidden">
+      <div style="height: 34px; display: flex; align-items: center; justify-content: space-between; padding: 0 6px 0 14px; background: #EEF0F3; border-bottom: 1px solid #C3C9D2; font-size: 13px; font-weight: 600">Ruta no disponible<button type="button" aria-label="Cerrar diálogo" style="width: 30px; height: 26px; border: 0; background: transparent"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M0 0l10 10M10 0L0 10" stroke="#1D2939" stroke-width="1.3"></path></svg></button></div>
+      <div style="display: flex; gap: 16px; padding: 20px 20px 8px">
+        <svg width="40" height="40" viewBox="0 0 40 40" role="img" aria-label="Información" style="flex: none"><circle cx="20" cy="20" r="18" fill="#1D4ED8"></circle><circle cx="20" cy="12.5" r="2.2" fill="#FFFFFF"></circle><path d="M20 18v12" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round"></path></svg>
+        <div style="font-size: 14px; line-height: 1.5">No existe una ruta entre «Central» y «Puerto».<br><span style="color: #475467; font-size: 13px">Las estaciones pertenecen a subredes distintas o hay una estación cerrada.</span></div>
+      </div>
+      <div style="display: flex; justify-content: flex-end; padding: 12px 20px 18px">
+        <button type="button" style="height: 32px; padding: 0 20px; border: 1px solid #1D4ED8; background: #1D4ED8; color: #FFFFFF; border-radius: 4px; font: inherit; font-size: 13px; font-weight: 600">Aceptar</button>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1540,"height":360}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

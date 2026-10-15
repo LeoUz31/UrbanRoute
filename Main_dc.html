@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>UrbanRoute · VentanaPrincipal</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1D4ED8}a:hover{color:#1E3A8A}
+</style>
+</helmet>
+<div style="width: 1280px; height: 800px; position: relative; overflow: hidden; display: flex; flex-direction: column; box-sizing: border-box; border: 1px solid #8A94A6; border-radius: 10px; background: #E9ECF1; font-family: 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif; color: #1D2939">
+
+  <!-- A · Barra de título -->
+  <div style="height: 34px; flex: none; display: flex; align-items: center; gap: 10px; padding: 0 0 0 12px; background: #D9DEE6; border-bottom: 1px solid #B7BFCB">
+    <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><circle cx="4" cy="4" r="2.5" fill="none" stroke="#1D2939" stroke-width="1.5"></circle><circle cx="14" cy="5" r="2.5" fill="none" stroke="#1D2939" stroke-width="1.5"></circle><circle cx="9" cy="14" r="2.5" fill="none" stroke="#1D2939" stroke-width="1.5"></circle><path d="M6 5l5.5 0.5M5.5 6l2.5 6M12.8 7.2l-2.6 4.8" fill="none" stroke="#1D2939" stroke-width="1.3"></path></svg>
+    <div style="font-size: 13px; font-weight: 600; flex: 1">{{windowTitle}}</div>
+    <div style="display: flex; height: 100%">
+      <button type="button" aria-label="Minimizar" style="width: 46px; height: 100%; border: 0; background: transparent; cursor: default"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M0 5h10" stroke="#1D2939" stroke-width="1.2"></path></svg></button>
+      <button type="button" aria-label="Maximizar" style="width: 46px; height: 100%; border: 0; background: transparent; cursor: default"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><rect x="0.6" y="0.6" width="8.8" height="8.8" fill="none" stroke="#1D2939" stroke-width="1.2"></rect></svg></button>
+      <button type="button" aria-label="Cerrar ventana" onClick="{{h.salir}}" style="width: 46px; height: 100%; border: 0; background: transparent; cursor: pointer"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M0 0l10 10M10 0L0 10" stroke="#1D2939" stroke-width="1.2"></path></svg></button>
+    </div>
+  </div>
+
+  <!-- B · JMenuBar (NORTH) -->
+  <div style="height: 30px; flex: none; display: flex; align-items: stretch; gap: 2px; padding: 0 6px; background: #F7F8FA; border-bottom: 1px solid #C3C9D2; position: relative; z-index: 40">
+    <div style="position: relative">
+      <button type="button" aria-haspopup="menu" onClick="{{h.toggleMenu}}" style="{{menuBtnStyle}}">Archivo</button>
+      <sc-if value="{{menuOpen}}" hint-placeholder-val="{{false}}">
+        <div style="position: absolute; left: 0; top: 30px; width: 230px; padding: 4px 0; background: #FFFFFF; border: 1px solid #98A2B3; border-radius: 4px; box-shadow: 0 10px 24px rgba(16,24,40,0.2)">
+          <button type="button" onClick="{{h.cargar}}" style="width: 100%; height: 30px; display: flex; justify-content: space-between; align-items: center; padding: 0 14px; border: 0; background: #FFFFFF; font: inherit; font-size: 13px; color: #1D2939; cursor: pointer"><span>Cargar red…</span><span style="color: #475467; font-size: 12px">Ctrl+O</span></button>
+          <button type="button" onClick="{{h.guardar}}" style="width: 100%; height: 30px; display: flex; justify-content: space-between; align-items: center; padding: 0 14px; border: 0; background: #FFFFFF; font: inherit; font-size: 13px; color: #1D2939; cursor: pointer"><span>Guardar</span><span style="color: #475467; font-size: 12px">Ctrl+S</span></button>
+          <div style="height: 1px; margin: 4px 0; background: #E4E7EC"></div>
+          <button type="button" onClick="{{h.salir}}" style="width: 100%; height: 30px; display: flex; justify-content: space-between; align-items: center; padding: 0 14px; border: 0; background: #FFFFFF; font: inherit; font-size: 13px; color: #1D2939; cursor: pointer"><span>Salir</span><span style="color: #475467; font-size: 12px">Alt+F4</span></button>
+        </div>
+      </sc-if>
+    </div>
+    <button type="button" onClick="{{h.ver}}" style="padding: 0 12px; border: 0; background: transparent; font: inherit; font-size: 13px; color: #1D2939; cursor: pointer">Ver</button>
+    <button type="button" onClick="{{h.ayuda}}" style="padding: 0 12px; border: 0; background: transparent; font: inherit; font-size: 13px; color: #1D2939; cursor: pointer">Ayuda</button>
+  </div>
+
+  <!-- Fila central: WEST · CENTER · EAST -->
+  <div style="flex: 1; min-height: 0; display: flex">
+
+    <!-- C · Panel de Edición (WEST, 280 px) -->
+    <div style="width: 280px; flex: none; overflow-y: auto; box-sizing: border-box; padding: 12px; display: flex; flex-direction: column; gap: 12px; background: #F4F5F7; border-right: 1px solid #C3C9D2">
+      <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #475467">PANEL DE EDICIÓN</div>
+
+      <fieldset style="margin: 0; padding: 10px 12px 12px; border: 1px solid #C3C9D2; border-radius: 6px; background: #FFFFFF; display: flex; flex-direction: column; gap: 8px">
+        <legend style="padding: 0 6px; font-size: 12px; font-weight: 600; color: #344054">Estación</legend>
+        <div style="display: grid; grid-template-columns: 78px minmax(0, 1fr); align-items: center; gap: 8px">
+          <label for="txtId" style="font-size: 12.5px; color: #344054">ID</label>
+          <input id="txtId" value="{{s.nId}}" onChange="{{f.nId}}" placeholder="E11" style="height: 30px; width: 100%; min-width: 0; box-sizing: border-box; padding: 0 8px; border: 1px solid #98A2B3; border-radius: 4px; font: inherit; font-size: 13px; color: #1D2939; background: #FFFFFF">
+          <label for="txtNombre" style="font-size: 12.5px; color: #344054">Nombre</label>
+          <input id="txtNombre" value="{{s.nNombre}}" onChange="{{f.nNombre}}" placeholder="Mercado" style="height: 30px; width: 100%; min-width: 0; box-sizing: border-box; padding: 0 8px; border: 1px solid #98A2B3; border-radius: 4px; font: inherit; font-size: 13px; color: #1D2939; background: #FFFFFF">
+          <label for="txtLinea" style="font-size: 12.5px; color: #344054">Línea</label>
+          <input id="txtLinea" value="{{s.nLinea}}" onChange="{{f.nLinea}}" placeholder="L2" style="height: 30px; width: 100%; min-width: 0; box-sizing: border-box; padding: 0 8px; border: 1px solid #98A2B3; border-radius: 4px; font: inherit; font-size: 13px; color: #1D2939; background: #FFFFFF">
+          <label for="txtZona" style="font-size: 12.5px; color: #344054">Zona</label>
+          <input id="txtZona" value="{{s.nZona}}" onChange="{{f.nZona}}" placeholder="Z3" style="height: 30px; width: 100%; min-width: 0; box-sizing: border-box; padding: 0 8px; border: 1px solid #98A2B3; border-radius: 4px; font: inherit; font-size: 13px; color: #1D2939; background: #FFFFFF">
+          <label for="txtCapacidad" style="font-size: 12.5px; color: #344054">Capacidad</label>
+          <input id="txtCapacidad" value="{{s.nCap}}" onChange="{{f.nCap}}" placeholder="8000" inputmode="numeric" style="height: 30px; width: 100%; min-width: 0; box-sizing: border-box; padding: 0 8px; border: 1px solid #98A2B3; border-radius: 4px; font: inherit; font-size: 13px; color: #1D2939; background: #FFFFFF">
+        </div>
+        <div style="display: flex; justify-content: flex-end">
+          <button type="button" onClick="{{h.agregarEstacion}}" style="height: 32px; padding: 0 14px; border: 1px solid {{accent}}; background: {{accent}}; color: #FFFFFF; border-radius: 4px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer">Agregar estación</button>
+        </div>
+        <div style="height: 1px; background: #E4E7EC; margin: 2px 0"></div>
+        <div style="display: grid; grid-template-columns: 78px minmax(0, 1fr); align-items: center; gap: 8px">
+          <label for="cmbEstacionEliminar" style="font-size: 12.5px; color: #344054">Estación</label>
+          <div style="position: relative; min-width: 0">
+            <button id="cmbEstacionEliminar" type="button" aria-haspopup="listbox" onClick="{{c.elim.toggle}}" style="width: 100%; height: 30px; display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 0 8px; border: 1px solid #98A2B3; border-radius: 4px; background: #FFFFFF; font: inherit; font-size: 13px; color: #1D2939; cursor: pointer; text-align: left"><span style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis">{{c.elim.label}}</span><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4l4 4 4-4" fill="none" stroke="#475467" stroke-width="1.6"></path></svg></button>
+            <sc-if value="{{c.elim.open}}" hint-placeholder-val="{{false}}">
+              <div style="position: absolute; left: 0; right: 0; top: 32px; z-index: 30; max-height: 200px; overflow-y: auto; background: #FFFFFF; border: 1px solid #98A2B3; border-radius: 4px; box-shadow: 0 10px 24px rgba(16,24,40,0.18)">
+                <sc-for list="{{c.elim.options}}" as="o" hint-placeholder-count="4">
+                  <button type="button" onClick="{{o.pick}}" style="{{o.style}}">{{o.name}}</button>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+        <div style="display: flex; justify-content: flex-end">
+          <button type="button" onClick="{{h.eliminarEstacion}}" style="height: 32px; padding: 0 12px; border: 1px solid #98A2B3; background: #FFFFFF; color: #B42318; border-radius: 4px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer">Eliminar estación</button>
+        </div>
+      </fieldset>
+
+      <fieldset style="margin: 0; padding: 10px 12px 12px; border: 1px solid #C3C9D2; border-radius: 6px; background: #FFFFFF; display: flex; flex-direction: column; gap: 8px">
+        <legend style="padding: 0 6px; font-size: 12px; font-weight: 600; color: #344054">Conexión</legend>
+        <div style="display: grid; grid-template-columns: 78px minmax(0, 1fr); align-items: center; gap: 8px">
+          <label for="cmbConexionOrigen" style="font-size: 12.5px; color: #344054">Origen</label>
+          <div style="position: relative; min-width: 0">
+            <button id="cmbConexionOrigen" type="button" aria-haspopup="listbox" onClick="{{c.cOri.toggle}}" style="width: 100%; height: 30px; display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 0 8px; border: 1px solid #98A2B3; border-radius: 4px; background: #FFFFFF; font: inherit; font-size: 13px; color: #1D2939; cursor: pointer; text-align: left"><span style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis">{{c.cOri.label}}</span><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4l4 4 4-4" fill="none" stroke="#475467" stroke-width="1.6"></path></svg></button>
+            <sc-if value="{{c.cOri.open}}" hint-placeholder-val="{{false}}">
+              <div style="position: absolute; left: 0; right: 0; top: 32px; z-index: 30; max-height: 200px; overflow-y: auto; background: #FFFFFF; border: 1px solid #98A2B3; border-radius: 4px; box-shadow: 0 10px 24px rgba(16,24,40,0.18)">
+                <sc-for list="{{c.cOri.options}}" as="o" hint-placeholder-count="4">
+                  <button type="button" onClick="{{o.pick}}" style="{{o.style}}">{{o.name}}</button>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+          <label for="cmbConexionDestino" style="font-size: 12.5px; color: #344054">Destino</label>
+          <div style="position: relative; min-width: 0">
+            <button id="cmbConexionDestino" type="button" aria-haspopup="listbox" onClick="{{c.cDes.toggle}}" style="width: 100%; height: 30px; display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 0 8px; border: 1px solid #98A2B3; border-radius: 4px; background: #FFFFFF; font: inherit; font-size: 13px; color: #1D2939; cursor: pointer; text-align: left"><span style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis">{{c.cDes.label}}</span><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4l4 4 4-4" fill="none" stroke="#475467" stroke-width="1.6"></path></svg></button>
+            <sc-if value="{{c.cDes.open}}" hint-placeholder-val="{{false}}">
+              <div style="position: absolute; left: 0; right: 0; top: 32px; z-index: 30; max-height: 200px; overflow-y: auto; background: #FFFFFF; border: 1px solid #98A2B3; border-radius: 4px; box-shadow: 0 10px 24px rgba(16,24,40,0.18)">
+                <sc-for list="{{c.cDes.options}}" as="o" hint-placeholder-count="4">
+                  <button type="button" onClick="{{o.pick}}" style="{{o.style}}">{{o.name}}</button>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+          <label for="spnTiempo" style="font-size: 12.5px; color: #344054">Tiempo min</label>
+          <input id="spnTiempo" type="number" min="1" max="999" value="{{s.cTiempo}}" onChange="{{f.cTiempo}}" style="height: 30px; width: 100%; min-width: 0; box-sizing: border-box; padding: 0 8px; border: 1px solid #98A2B3; border-radius: 4px; font: inherit; font-size: 13px; color: #1D2939; background: #FFFFFF">
+        </div>
+        <div style="display: flex; justify-content: center; gap: 10px">
+          <button type="button" onClick="{{h.agregarConexion}}" style="height: 32px; padding: 0 14px; border: 1px solid {{accent}}; background: {{accent}}; color: #FFFFFF; border-radius: 4px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer">Agregar</button>
+          <button type="button" onClick="{{h.eliminarConexion}}" style="height: 32px; padding: 0 14px; border: 1px solid #98A2B3; background: #FFFFFF; color: #B42318; border-radius: 4px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer">Eliminar</button>
+        </div>
+      </fieldset>
+    </div>
+
+    <!-- D · Visor GraphStream (CENTER) -->
+    <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; background: #FFFFFF">
+      <div style="height: 30px; flex: none; display: flex; align-items: center; padding: 0 12px; border-bottom: 1px solid #E4E7EC; font-size: 12px; font-weight: 600; color: #344054; letter-spacing: 0.02em">Mapa de la red · ViewPanel (SwingViewer)</div>
+      <div style="flex: 1; min-height: 0; position: relative; overflow: hidden; background-color: #FFFFFF; background-image: radial-gradient(#E4E7EC 1px, transparent 1px); background-size: 20px 20px">
+        <sc-for list="{{edgesV}}" as="e" hint-placeholder-count="6">
+          <div style="{{e.style}}"></div>
+        </sc-for>
+        <sc-for list="{{weightsV}}" as="w" hint-placeholder-count="6">
+          <div style="{{w.style}}">{{w.w}}</div>
+        </sc-for>
+        <sc-for list="{{nodesV}}" as="n" hint-placeholder-count="6">
+          <div style="{{n.circleStyle}}">{{n.inner}}</div>
+          <div style="{{n.labelStyle}}">{{n.name}}</div>
+        </sc-for>
+        <sc-if value="{{graphEmpty}}" hint-placeholder-val="{{false}}">
+          <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #475467">Cargue un archivo CSV para comenzar</div>
+        </sc-if>
+      </div>
+      <!-- F · Leyenda -->
+      <div style="height: 40px; flex: none; display: flex; align-items: center; gap: 16px; padding: 0 12px; border-top: 1px solid #E4E7EC; background: #F7F8FA; font-size: 12px; color: #344054">
+        <div style="display: flex; align-items: center; gap: 6px"><div style="width: 22px; height: 5px; border-radius: 3px; background: {{routeColor}}"></div>Ruta óptima</div>
+        <div style="display: flex; align-items: center; gap: 6px"><div style="width: 16px; height: 16px; border-radius: 50%; border: 3px solid #344054; box-sizing: border-box"></div>Hub (tamaño = grado)</div>
+        <div style="display: flex; align-items: center; gap: 4px"><div style="width: 12px; height: 12px; border-radius: 2px; background: #2563EB"></div><div style="width: 12px; height: 12px; border-radius: 2px; background: #0F766E"></div><div style="width: 12px; height: 12px; border-radius: 2px; background: #7C3AED"></div><span style="margin-left: 3px">Subredes</span></div>
+        <div style="display: flex; align-items: center; gap: 6px"><div style="width: 16px; height: 16px; border-radius: 50%; border: 2px dashed #98A2B3; box-sizing: border-box; font-size: 10px; line-height: 12px; text-align: center; color: #667085">✕</div>Cerrada</div>
+        <div style="flex: 1"></div>
+        <button type="button" onClick="{{h.encajar}}" aria-label="Encajar vista" style="height: 28px; padding: 0 10px; display: flex; align-items: center; gap: 6px; border: 1px solid #98A2B3; background: #FFFFFF; border-radius: 4px; font: inherit; font-size: 12px; color: #1D2939; cursor: pointer"><svg width="13" height="13" viewBox="0 0 14 14" aria-hidden="true"><path d="M12 7a5 5 0 1 1-1.5-3.6M12 1.5V4H9.5" fill="none" stroke="#1D2939" stroke-width="1.5"></path></svg>Encajar</button>
+      </div>
+    </div>
+
+    <!-- E · Panel de Análisis (EAST, 300 px) -->
+    <div style="width: 300px; flex: none; overflow-y: auto; box-sizing: border-box; padding: 12px; display: flex; flex-direction: column; gap: 12px; background: #F4F5F7; border-left: 1px solid #C3C9D2">
+      <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #475467">PANEL DE ANÁLISIS</div>
+
+      <fieldset style="margin: 0; padding: 10px 12px 12px; border: 1px solid #C3C9D2; border-radius: 6px; background: #FFFFFF; display: flex; flex-direction: column; gap: 8px">
+        <legend style="padding: 0 6px; font-size: 12px; font-weight: 600; color: #344054">Ruta óptima (Dijkstra)</legend>
+        <div style="display: grid; grid-template-columns: 64px minmax(0, 1fr); align-items: center; gap: 8px">
+          <label for="cmbRutaOrigen" style="font-size: 12.5px; color: #344054">Origen</label>
+          <div style="position: relative; min-width: 0">
+            <button id="cmbRutaOrigen" type="button" aria-haspopup="listbox" onClick="{{c.rOri.toggle}}" style="width: 100%; height: 30px; display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 0 8px; border: 1px solid #98A2B3; border-radius: 4px; background: #FFFFFF; font: inherit; font-size: 13px; color: #1D2939; cursor: pointer; text-align: left"><span style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis">{{c.rOri.label}}</span><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4l4 4 4-4" fill="none" stroke="#475467" stroke-width="1.6"></path></svg></button>
+            <sc-if value="{{c.rOri.open}}" hint-placeholder-val="{{false}}">
+              <div style="position: absolute; left: 0; right: 0; top: 32px; z-index: 30; max-height: 200px; overflow-y: auto; background: #FFFFFF; border: 1px solid #98A2B3; border-radius: 4px; box-shadow: 0 10px 24px rgba(16,24,40,0.18)">
+                <sc-for list="{{c.rOri.options}}" as="o" hint-placeholder-count="4">
+                  <button type="button" onClick="{{o.pick}}" style="{{o.style}}">{{o.name}}</button>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+          <label for="cmbRutaDestino" style="font-size: 12.5px; color: #344054">Destino</label>
+          <div style="position: relative; min-width: 0">
+            <button id="cmbRutaDestino" type="button" aria-haspopup="listbox" onClick="{{c.rDes.toggle}}" style="width: 100%; height: 30px; display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 0 8px; border: 1px solid #98A2B3; border-radius: 4px; background: #FFFFFF; font: inherit; font-size: 13px; color: #1D2939; cursor: pointer; text-align: left"><span style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis">{{c.rDes.label}}</span><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4l4 4 4-4" fill="none" stroke="#475467" stroke-width="1.6"></path></svg></button>
+            <sc-if value="{{c.rDes.open}}" hint-placeholder-val="{{false}}">
+              <div style="position: absolute; left: 0; right: 0; top: 32px; z-index: 30; max-height: 200px; overflow-y: auto; background: #FFFFFF; border: 1px solid #98A2B3; border-radius: 4px; box-shadow: 0 10px 24px rgba(16,24,40,0.18)">
+                <sc-for list="{{c.rDes.options}}" as="o" hint-placeholder-count="4">
+                  <button type="button" onClick="{{o.pick}}" style="{{o.style}}">{{o.name}}</button>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+        <div style="display: flex; justify-content: center">
+          <button type="button" onClick="{{h.calcularRuta}}" style="height: 32px; padding: 0 16px; border: 1px solid {{accent}}; background: {{accent}}; color: #FFFFFF; border-radius: 4px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer">Calcular ruta</button>
+        </div>
+        <div style="min-height: 64px; box-sizing: border-box; padding: 8px 10px; border: 1px solid #C3C9D2; border-radius: 4px; background: #F9FAFB; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 12px; line-height: 1.5; color: #1D2939">
+          <sc-if value="{{hasRoute}}" hint-placeholder-val="{{false}}">
+            <div>{{routePath}}</div>
+            <div style="margin-top: 4px; font-weight: 500">Tiempo total: {{routeTotal}} min</div>
+          </sc-if>
+          <sc-if value="{{noRoute}}" hint-placeholder-val="{{true}}">
+            <div style="color: #475467">Sin cálculo. Elija origen y destino.</div>
+          </sc-if>
+        </div>
+      </fieldset>
+
+      <fieldset style="margin: 0; padding: 10px 12px 12px; border: 1px solid #C3C9D2; border-radius: 6px; background: #FFFFFF; display: flex; flex-direction: column; gap: 8px">
+        <legend style="padding: 0 6px; font-size: 12px; font-weight: 600; color: #344054">Simular cierre</legend>
+        <div style="display: grid; grid-template-columns: 64px minmax(0, 1fr); align-items: center; gap: 8px">
+          <label for="cmbCierre" style="font-size: 12.5px; color: #344054">Estación</label>
+          <div style="position: relative; min-width: 0">
+            <button id="cmbCierre" type="button" aria-haspopup="listbox" onClick="{{c.cierre.toggle}}" style="width: 100%; height: 30px; display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 0 8px; border: 1px solid #98A2B3; border-radius: 4px; background: #FFFFFF; font: inherit; font-size: 13px; color: #1D2939; cursor: pointer; text-align: left"><span style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis">{{c.cierre.label}}</span><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4l4 4 4-4" fill="none" stroke="#475467" stroke-width="1.6"></path></svg></button>
+            <sc-if value="{{c.cierre.open}}" hint-placeholder-val="{{false}}">
+              <div style="position: absolute; left: 0; right: 0; top: 32px; z-index: 30; max-height: 200px; overflow-y: auto; background: #FFFFFF; border: 1px solid #98A2B3; border-radius: 4px; box-shadow: 0 10px 24px rgba(16,24,40,0.18)">
+                <sc-for list="{{c.cierre.options}}" as="o" hint-placeholder-count="4">
+                  <button type="button" onClick="{{o.pick}}" style="{{o.style}}">{{o.name}}</button>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+        <div style="display: flex; justify-content: center">
+          <button type="button" onClick="{{h.cerrarEstacion}}" style="height: 32px; padding: 0 16px; border: 1px solid #98A2B3; background: #FFFFFF; color: #1D2939; border-radius: 4px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer">Cerrar estación</button>
+        </div>
+        <div style="font-size: 12px; color: #475467">Cerradas: {{closedText}}</div>
+      </fieldset>
+
+      <fieldset style="margin: 0; padding: 10px 12px 12px; border: 1px solid #C3C9D2; border-radius: 6px; background: #FFFFFF; display: flex; flex-direction: column; gap: 8px">
+        <legend style="padding: 0 6px; font-size: 12px; font-weight: 600; color: #344054">Subredes (BFS)</legend>
+        <div style="display: flex; justify-content: center">
+          <button type="button" onClick="{{h.detectar}}" style="height: 32px; padding: 0 16px; border: 1px solid {{accent}}; background: {{accent}}; color: #FFFFFF; border-radius: 4px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer">Detectar subredes</button>
+        </div>
+        <div style="font-size: 12.5px; color: #344054">Componentes: <strong>{{subCount}}</strong></div>
+        <div style="min-height: 64px; box-sizing: border-box; padding: 8px 10px; border: 1px solid #C3C9D2; border-radius: 4px; background: #F9FAFB; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 12px; line-height: 1.5; display: flex; flex-direction: column; gap: 4px">
+          <sc-for list="{{subList}}" as="sb" hint-placeholder-count="2">
+            <div style="display: flex; gap: 6px; align-items: flex-start"><div style="{{sb.swatch}}"></div><div>{{sb.text}}</div></div>
+          </sc-for>
+          <sc-if value="{{noSubs}}" hint-placeholder-val="{{true}}">
+            <div style="color: #475467">Pulse Detectar subredes.</div>
+          </sc-if>
+        </div>
+      </fieldset>
+
+      <fieldset style="margin: 0; padding: 10px 12px 12px; border: 1px solid #C3C9D2; border-radius: 6px; background: #FFFFFF; display: flex; flex-direction: column; gap: 8px">
+        <legend style="padding: 0 6px; font-size: 12px; font-weight: 600; color: #344054">Hubs (Centralidad)</legend>
+        <div style="display: grid; grid-template-columns: 64px minmax(0, 1fr); align-items: center; gap: 8px">
+          <label for="spnTopK" style="font-size: 12.5px; color: #344054">Top-k</label>
+          <input id="spnTopK" type="number" min="1" max="20" value="{{s.topK}}" onChange="{{f.topK}}" style="height: 30px; width: 100%; min-width: 0; box-sizing: border-box; padding: 0 8px; border: 1px solid #98A2B3; border-radius: 4px; font: inherit; font-size: 13px; color: #1D2939; background: #FFFFFF">
+        </div>
+        <div style="display: flex; justify-content: center">
+          <button type="button" onClick="{{h.hubs}}" style="height: 32px; padding: 0 16px; border: 1px solid {{accent}}; background: {{accent}}; color: #FFFFFF; border-radius: 4px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer">Calcular hubs</button>
+        </div>
+        <div style="border: 1px solid #C3C9D2; border-radius: 4px; overflow: hidden; font-size: 12.5px">
+          <div style="display: grid; grid-template-columns: 32px minmax(0, 1fr) 56px; padding: 6px 10px; background: #EEF0F3; font-weight: 600; color: #344054; border-bottom: 1px solid #C3C9D2"><div>#</div><div>Estación</div><div style="text-align: right">Grado</div></div>
+          <sc-for list="{{hubRows}}" as="r" hint-placeholder-count="3">
+            <div style="display: grid; grid-template-columns: 32px minmax(0, 1fr) 56px; padding: 6px 10px; border-bottom: 1px solid #EEF0F3; color: #1D2939"><div>{{r.rank}}</div><div>{{r.name}}</div><div style="text-align: right; font-weight: 600">{{r.deg}}</div></div>
+          </sc-for>
+          <sc-if value="{{noHubs}}" hint-placeholder-val="{{true}}">
+            <div style="padding: 8px 10px; color: #475467">Sin cálculo.</div>
+          </sc-if>
+        </div>
+      </fieldset>
+    </div>
+  </div>
+
+  <!-- G · Barra de estado (SOUTH) -->
+  <div style="height: 28px; flex: none; display: flex; align-items: center; background: #D9DEE6; border-top: 1px solid #B7BFCB; font-size: 12px; color: #1D2939">
+    <div style="padding: 0 12px; border-right: 1px solid #B7BFCB">Archivo: red_metro.csv</div>
+    <div style="padding: 0 12px; border-right: 1px solid #B7BFCB">Estaciones: {{nEst}}</div>
+    <div style="padding: 0 12px; border-right: 1px solid #B7BFCB">Conexiones: {{nCon}}</div>
+    <sc-if value="{{s.cambios}}" hint-placeholder-val="{{false}}">
+      <div style="padding: 0 12px; border-right: 1px solid #B7BFCB; display: flex; align-items: center; gap: 6px; color: #B42318; font-weight: 600"><div style="width: 8px; height: 8px; border-radius: 50%; background: #D92D20"></div>Cambios sin guardar</div>
+    </sc-if>
+    <div style="flex: 1; padding: 0 12px; text-align: right; color: #344054; overflow: hidden; white-space: nowrap; text-overflow: ellipsis">{{s.msg}}</div>
+  </div>
+
+  <!-- Diálogos modales (JOptionPane) -->
+  <sc-if value="{{dlg.any}}" hint-placeholder-val="{{false}}">
+    <div style="position: absolute; inset: 0; z-index: 80; background: rgba(16,24,40,0.38); display: flex; align-items: center; justify-content: center">
+
+      <sc-if value="{{dlg.guardar}}" hint-placeholder-val="{{false}}">
+        <div style="width: 460px; background: #FFFFFF; border: 1px solid #8A94A6; border-radius: 8px; box-shadow: 0 24px 48px rgba(16,24,40,0.3); overflow: hidden">
+          <div style="height: 34px; display: flex; align-items: center; justify-content: space-between; padding: 0 6px 0 14px; background: #EEF0F3; border-bottom: 1px solid #C3C9D2; font-size: 13px; font-weight: 600">Cambios sin guardar<button type="button" aria-label="Cerrar diálogo" onClick="{{h.dlgCancelar}}" style="width: 30px; height: 26px; border: 0; background: transparent; cursor: pointer"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M0 0l10 10M10 0L0 10" stroke="#1D2939" stroke-width="1.3"></path></svg></button></div>
+          <div style="display: flex; gap: 16px; padding: 20px 20px 8px">
+            <svg width="40" height="40" viewBox="0 0 40 40" role="img" aria-label="Advertencia"><path d="M20 4L38 35H2Z" fill="#F59E0B"></path><path d="M20 15v10" stroke="#1D2939" stroke-width="3" stroke-linecap="round"></path><circle cx="20" cy="30" r="1.8" fill="#1D2939"></circle></svg>
+            <div style="font-size: 14px; line-height: 1.5">Hay cambios en la red que no se han guardado en el archivo.<br>¿Desea guardarlos antes de continuar?</div>
+          </div>
+          <div style="display: flex; justify-content: flex-end; gap: 8px; padding: 12px 20px 18px">
+            <button type="button" onClick="{{h.dlgGuardar}}" style="height: 32px; padding: 0 16px; border: 1px solid {{accent}}; background: {{accent}}; color: #FFFFFF; border-radius: 4px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer">Guardar</button>
+            <button type="button" onClick="{{h.dlgNoGuardar}}" style="height: 32px; padding: 0 14px; border: 1px solid #98A2B3; background: #FFFFFF; color: #1D2939; border-radius: 4px; font: inherit; font-size: 13px; cursor: pointer">No guardar</button>
+            <button type="button" onClick="{{h.dlgCancelar}}" style="height: 32px; padding: 0 14px; border: 1px solid #98A2B3; background: #FFFFFF; color: #1D2939; border-radius: 4px; font: inherit; font-size: 13px; cursor: pointer">Cancelar</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{dlg.parseo}}" hint-placeholder-val="{{false}}">
+        <div style="width: 480px; background: #FFFFFF; border: 1px solid #8A94A6; border-radius: 8px; box-shadow: 0 24px 48px rgba(16,24,40,0.3); overflow: hidden">
+          <div style="height: 34px; display: flex; align-items: center; justify-content: space-between; padding: 0 6px 0 14px; background: #EEF0F3; border-bottom: 1px solid #C3C9D2; font-size: 13px; font-weight: 600">Error de lectura del archivo<button type="button" aria-label="Cerrar diálogo" onClick="{{h.dlgCerrar}}" style="width: 30px; height: 26px; border: 0; background: transparent; cursor: pointer"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M0 0l10 10M10 0L0 10" stroke="#1D2939" stroke-width="1.3"></path></svg></button></div>
+          <div style="display: flex; gap: 16px; padding: 20px 20px 8px">
+            <svg width="40" height="40" viewBox="0 0 40 40" role="img" aria-label="Error" style="flex: none"><circle cx="20" cy="20" r="18" fill="#D92D20"></circle><path d="M13 13l14 14M27 13L13 27" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"></path></svg>
+            <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px">
+              <div style="font-size: 14px; line-height: 1.5">Se omitieron 2 líneas con formato inválido.<br><span style="color: #475467; font-size: 13px">Cargadas: 21 válidas · Omitidas: 2</span></div>
+              <div style="height: 96px; overflow-y: auto; box-sizing: border-box; padding: 8px 10px; border: 1px solid #C3C9D2; border-radius: 4px; background: #F9FAFB; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 12px; line-height: 1.55; white-space: pre-line">Línea 12: "E11,Mercado,,Z2"
+  → campo vacío (Linea)
+Línea 19: "Museo,Parque,x"
+  → tiempo no numérico</div>
+            </div>
+          </div>
+          <div style="display: flex; justify-content: flex-end; padding: 12px 20px 18px">
+            <button type="button" onClick="{{h.dlgCerrar}}" style="height: 32px; padding: 0 20px; border: 1px solid {{accent}}; background: {{accent}}; color: #FFFFFF; border-radius: 4px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer">Aceptar</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{dlg.ruta}}" hint-placeholder-val="{{false}}">
+        <div style="width: 460px; background: #FFFFFF; border: 1px solid #8A94A6; border-radius: 8px; box-shadow: 0 24px 48px rgba(16,24,40,0.3); overflow: hidden">
+          <div style="height: 34px; display: flex; align-items: center; justify-content: space-between; padding: 0 6px 0 14px; background: #EEF0F3; border-bottom: 1px solid #C3C9D2; font-size: 13px; font-weight: 600">Ruta no disponible<button type="button" aria-label="Cerrar diálogo" onClick="{{h.dlgCerrar}}" style="width: 30px; height: 26px; border: 0; background: transparent; cursor: pointer"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M0 0l10 10M10 0L0 10" stroke="#1D2939" stroke-width="1.3"></path></svg></button></div>
+          <div style="display: flex; gap: 16px; padding: 20px 20px 8px">
+            <svg width="40" height="40" viewBox="0 0 40 40" role="img" aria-label="Información" style="flex: none"><circle cx="20" cy="20" r="18" fill="#1D4ED8"></circle><circle cx="20" cy="12.5" r="2.2" fill="#FFFFFF"></circle><path d="M20 18v12" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round"></path></svg>
+            <div style="font-size: 14px; line-height: 1.5">No existe una ruta entre «{{dlg.a}}» y «{{dlg.b}}».<br><span style="color: #475467; font-size: 13px">Las estaciones pertenecen a subredes distintas o hay una estación cerrada.</span></div>
+          </div>
+          <div style="display: flex; justify-content: flex-end; padding: 12px 20px 18px">
+            <button type="button" onClick="{{h.dlgCerrar}}" style="height: 32px; padding: 0 20px; border: 1px solid {{accent}}; background: {{accent}}; color: #FFFFFF; border-radius: 4px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer">Aceptar</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{dlg.mismo}}" hint-placeholder-val="{{false}}">
+        <div style="width: 420px; background: #FFFFFF; border: 1px solid #8A94A6; border-radius: 8px; box-shadow: 0 24px 48px rgba(16,24,40,0.3); overflow: hidden">
+          <div style="height: 34px; display: flex; align-items: center; justify-content: space-between; padding: 0 6px 0 14px; background: #EEF0F3; border-bottom: 1px solid #C3C9D2; font-size: 13px; font-weight: 600">Validación<button type="button" aria-label="Cerrar diálogo" onClick="{{h.dlgCerrar}}" style="width: 30px; height: 26px; border: 0; background: transparent; cursor: pointer"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M0 0l10 10M10 0L0 10" stroke="#1D2939" stroke-width="1.3"></path></svg></button></div>
+          <div style="display: flex; gap: 16px; padding: 20px 20px 8px; align-items: center">
+            <svg width="40" height="40" viewBox="0 0 40 40" role="img" aria-label="Advertencia" style="flex: none"><path d="M20 4L38 35H2Z" fill="#F59E0B"></path><path d="M20 15v10" stroke="#1D2939" stroke-width="3" stroke-linecap="round"></path><circle cx="20" cy="30" r="1.8" fill="#1D2939"></circle></svg>
+            <div style="font-size: 14px; line-height: 1.5">Seleccione estaciones distintas para origen y destino.</div>
+          </div>
+          <div style="display: flex; justify-content: flex-end; padding: 12px 20px 18px">
+            <button type="button" onClick="{{h.dlgCerrar}}" style="height: 32px; padding: 0 20px; border: 1px solid {{accent}}; background: {{accent}}; color: #FFFFFF; border-radius: 4px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer">Aceptar</button>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <!-- Simulación de cierre de la aplicación -->
+  <sc-if value="{{s.cerrada}}" hint-placeholder-val="{{false}}">
+    <div style="position: absolute; inset: 0; z-index: 90; background: #E9ECF1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px">
+      <div style="font-size: 16px; font-weight: 600">La ventana se cerró (simulación de Salir)</div>
+      <button type="button" onClick="{{h.reabrir}}" style="height: 36px; padding: 0 18px; border: 1px solid {{accent}}; background: {{accent}}; color: #FFFFFF; border-radius: 4px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer">Reabrir UrbanRoute</button>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#1D4ED8","options":["#1D4ED8","#0F766E","#344054"]},"routeColor":{"editor":"color","default":"#E8590C","options":["#E8590C","#D92D20","#B45309"]},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  initNodes() {
+    return [
+      { id: 'E01', name: 'Central',  x: 330, y: 290 },
+      { id: 'E02', name: 'Norte',    x: 330, y: 80 },
+      { id: 'E03', name: 'Museo',    x: 140, y: 150 },
+      { id: 'E04', name: 'Parque',   x: 520, y: 120 },
+      { id: 'E05', name: 'Terminal', x: 615, y: 265 },
+      { id: 'E06', name: 'Oeste',    x: 110, y: 370 },
+      { id: 'E07', name: 'Este',     x: 520, y: 375 },
+      { id: 'E08', name: 'Sur',      x: 330, y: 480 },
+      { id: 'E09', name: 'Estadio',  x: 160, y: 545 },
+      { id: 'E10', name: 'Puerto',   x: 600, y: 540 }
+    ];
+  }
+  initEdges() {
+    return [
+      { a: 'E01', b: 'E02', w: 4 }, { a: 'E01', b: 'E08', w: 5 }, { a: 'E01', b: 'E06', w: 6 },
+      { a: 'E01', b: 'E07', w: 3 }, { a: 'E02', b: 'E03', w: 3 }, { a: 'E02', b: 'E04', w: 5 },
+      { a: 'E04', b: 'E05', w: 4 }, { a: 'E07', b: 'E05', w: 6 }, { a: 'E07', b: 'E10', w: 7 },
+      { a: 'E08', b: 'E09', w: 4 }, { a: 'E06', b: 'E09', w: 5 }
+    ];
+  }
+  fresh() {
+    return {
+      nodes: this.initNodes(), edges: this.initEdges(), closed: {},
+      route: null, showSub: false, showHubs: false, topK: 3,
+      cambios: false, menuOpen: false, openCombo: null,
+      dialog: null, pending: null, cerrada: false, dlgA: '', dlgB: '',
+      msg: 'Red cargada: 10 estaciones, 11 conexiones',
+      elim: 'E06', cOri: 'E03', cDes: 'E06', cTiempo: 6,
+      rOri: 'E03', rDes: 'E10', cierre: 'E01',
+      nId: '', nNombre: '', nLinea: '', nZona: '', nCap: ''
+    };
+  }
+  other(e, u) { return e.a === u ? e.b : (e.b === u ? e.a : null); }
+  dijkstra(nodes, edges, closed, s, t) {
+    const act = {};
+    nodes.forEach((n) => { if (!closed[n.id]) act[n.id] = true; });
+    if (!act[s] || !act[t]) return null;
+    const dist = {}, prev = {}, done = {};
+    Object.keys(act).forEach((k) => { dist[k] = Infinity; });
+    dist[s] = 0;
+    for (;;) {
+      let u = null;
+      Object.keys(act).forEach((k) => { if (!done[k] && dist[k] < Infinity && (u === null || dist[k] < dist[u])) u = k; });
+      if (u === null || u === t) break;
+      done[u] = true;
+      edges.forEach((e) => {
+        const v = this.other(e, u);
+        if (v && act[v] && !done[v] && dist[u] + e.w < dist[v]) { dist[v] = dist[u] + e.w; prev[v] = u; }
+      });
+    }
+    if (dist[t] === Infinity) return null;
+    const path = []; let c = t;
+    while (c) { path.unshift(c); c = prev[c]; }
+    return { path: path, total: dist[t] };
+  }
+  components(nodes, edges, closed) {
+    const seen = {}, comps = [];
+    nodes.forEach((n) => {
+      if (closed[n.id] || seen[n.id]) return;
+      const q = [n.id], comp = []; seen[n.id] = true;
+      while (q.length) {
+        const u = q.shift(); comp.push(u);
+        edges.forEach((e) => { const v = this.other(e, u); if (v && !seen[v] && !closed[v]) { seen[v] = true; q.push(v); } });
+      }
+      comps.push(comp);
+    });
+    return comps;
+  }
+  renderVals() {
+    const S = Object.assign({}, this.fresh(), this.state || {});
+    const accent = this.props.accent ?? '#1D4ED8';
+    const routeColor = this.props.routeColor ?? '#E8590C';
+    const pal = ['#2563EB', '#0F766E', '#7C3AED', '#475467', '#DB2777'];
+    const byId = {}; S.nodes.forEach((n) => { byId[n.id] = n; });
+    const edges = S.edges.filter((e) => byId[e.a] && byId[e.b]);
+    const set = (p) => this.setState(p);
+
+    const deg = {};
+    S.nodes.forEach((n) => { deg[n.id] = 0; });
+    edges.forEach((e) => { if (!S.closed[e.a] && !S.closed[e.b]) { deg[e.a]++; deg[e.b]++; } });
+
+    const comps = S.showSub ? this.components(S.nodes, edges, S.closed) : [];
+    const compIdx = {}; comps.forEach((c, i) => c.forEach((id) => { compIdx[id] = i; }));
+
+    const route = S.route;
+    const onRoute = {}, routeEdge = {};
+    if (route) {
+      route.path.forEach((id, i) => {
+        onRoute[id] = true;
+        if (i > 0) { routeEdge[route.path[i - 1] + '|' + id] = true; routeEdge[id + '|' + route.path[i - 1]] = true; }
+      });
+    }
+
+    const edgesV = [], weightsV = [];
+    edges.forEach((e) => {
+      const a = byId[e.a], b = byId[e.b];
+      const dead = S.closed[e.a] || S.closed[e.b];
+      const hot = !!routeEdge[e.a + '|' + e.b];
+      const thick = hot ? 6 : 3;
+      const col = dead ? '#C3C9D2' : (hot ? routeColor : '#667085');
+      const dx = b.x - a.x, dy = b.y - a.y;
+      const len = Math.sqrt(dx * dx + dy * dy), ang = Math.atan2(dy, dx) * 180 / Math.PI;
+      const bg = dead ? 'background: repeating-linear-gradient(90deg, ' + col + ' 0 7px, transparent 7px 12px)' : 'background: ' + col;
+      edgesV.push({ style: 'position: absolute; left: ' + a.x + 'px; top: ' + (a.y - thick / 2) + 'px; width: ' + len + 'px; height: ' + thick + 'px; transform-origin: 0 50%; transform: rotate(' + ang + 'deg); border-radius: ' + thick + 'px; z-index: 1; ' + bg });
+      const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+      weightsV.push({ w: e.w, style: 'position: absolute; left: ' + (mx - 12) + 'px; top: ' + (my - 10) + 'px; min-width: 24px; height: 20px; padding: 0 5px; box-sizing: border-box; border-radius: 10px; background: #FFFFFF; border: 1px solid ' + (hot ? routeColor : '#C3C9D2') + '; color: ' + (hot ? '#9A3412' : (dead ? '#98A2B3' : '#344054')) + '; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; z-index: 2' });
+    });
+
+    const nodesV = S.nodes.map((n) => {
+      const cl = !!S.closed[n.id];
+      const d = S.showHubs && !cl ? 24 + deg[n.id] * 7 : 30;
+      let fill = '#FFFFFF', border = '3px solid #344054', color = '#1D2939';
+      if (S.showSub && compIdx[n.id] !== undefined) { fill = pal[compIdx[n.id] % pal.length]; border = '3px solid ' + fill; color = '#FFFFFF'; }
+      if (onRoute[n.id]) border = '4px solid ' + routeColor;
+      if (cl) { fill = '#F2F4F7'; border = '2px dashed #98A2B3'; color = '#667085'; }
+      return {
+        name: n.name,
+        inner: cl ? '✕' : (S.showHubs ? String(deg[n.id]) : ''),
+        circleStyle: 'position: absolute; left: ' + (n.x - d / 2) + 'px; top: ' + (n.y - d / 2) + 'px; width: ' + d + 'px; height: ' + d + 'px; box-sizing: border-box; border-radius: 50%; background: ' + fill + '; border: ' + border + '; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: ' + color + '; z-index: 3',
+        labelStyle: 'position: absolute; left: ' + (n.x - 70) + 'px; width: 140px; top: ' + (n.y + d / 2 + 3) + 'px; text-align: center; font-size: 12px; font-weight: 600; z-index: 4; text-shadow: 0 0 3px #FFFFFF, 0 0 3px #FFFFFF; color: ' + (cl ? '#667085' : '#1D2939') + '; text-decoration: ' + (cl ? 'line-through' : 'none')
+      };
+    });
+
+    const optStyle = (sel) => 'display: block; width: 100%; text-align: left; padding: 7px 10px; border: 0; background: ' + (sel ? '#EFF4FF' : '#FFFFFF') + '; font: inherit; font-size: 13px; color: #1D2939; cursor: pointer; font-weight: ' + (sel ? '600' : '400');
+    const mk = (key, list) => {
+      const cur = byId[S[key]];
+      return {
+        label: cur ? cur.name + (S.closed[cur.id] ? ' (cerrada)' : '') : '— Seleccionar —',
+        open: S.openCombo === key,
+        toggle: () => set({ openCombo: S.openCombo === key ? null : key, menuOpen: false }),
+        options: list.map((n) => ({
+          name: n.name + (S.closed[n.id] ? ' · cerrada' : ''),
+          style: optStyle(n.id === S[key]),
+          pick: () => { const p = { openCombo: null }; p[key] = n.id; set(p); }
+        }))
+      };
+    };
+    const openNodes = S.nodes.filter((n) => !S.closed[n.id]);
+    const c = {
+      elim: mk('elim', S.nodes), cOri: mk('cOri', S.nodes), cDes: mk('cDes', S.nodes),
+      rOri: mk('rOri', S.nodes), rDes: mk('rDes', S.nodes), cierre: mk('cierre', openNodes)
+    };
+
+    const field = (k, num) => (ev) => { const p = {}; const v = ev && ev.target ? ev.target.value : ''; p[k] = num ? (parseInt(v, 10) || 1) : v; set(p); };
+    const f = { nId: field('nId'), nNombre: field('nNombre'), nLinea: field('nLinea'), nZona: field('nZona'), nCap: field('nCap'), cTiempo: field('cTiempo', true), topK: field('topK', true) };
+
+    const proceed = (pending, extra) => {
+      if (pending === 'cargar') set(Object.assign(this.fresh(), { dialog: 'parseo', msg: 'Red recargada desde red_metro.csv (2 líneas omitidas)' }));
+      else if (pending === 'salir') set(Object.assign({ dialog: null, pending: null, cerrada: true }, extra || {}));
+      else set({ dialog: null, pending: null });
+    };
+    const slots = [{ x: 210, y: 250 }, { x: 440, y: 215 }, { x: 445, y: 470 }, { x: 230, y: 430 }, { x: 640, y: 410 }, { x: 460, y: 40 }];
+
+    const h = {
+      toggleMenu: () => set({ menuOpen: !S.menuOpen, openCombo: null }),
+      cargar: () => S.cambios ? set({ menuOpen: false, dialog: 'guardar', pending: 'cargar' }) : proceed('cargar'),
+      guardar: () => set({ menuOpen: false, cambios: false, msg: 'Cambios guardados en red_metro.csv' }),
+      salir: () => S.cambios ? set({ menuOpen: false, dialog: 'guardar', pending: 'salir' }) : proceed('salir', { menuOpen: false }),
+      ver: () => set({ menuOpen: false, msg: 'Menú Ver (opcional): limpiar resaltados, mostrar etiquetas' }),
+      ayuda: () => set({ menuOpen: false, msg: 'Menú Ayuda (opcional): Acerca de UrbanRoute' }),
+      encajar: () => set({ route: null, showSub: false, showHubs: false, msg: 'Vista restablecida y resaltados limpiados' }),
+      dlgGuardar: () => proceed(S.pending, { cambios: false }),
+      dlgNoGuardar: () => proceed(S.pending),
+      dlgCancelar: () => set({ dialog: null, pending: null, msg: 'Operación cancelada' }),
+      dlgCerrar: () => set({ dialog: null }),
+      reabrir: () => set(Object.assign(this.fresh(), { msg: 'UrbanRoute iniciado' })),
+      agregarEstacion: () => {
+        const id = S.nId.trim(), nom = S.nNombre.trim();
+        if (!id || !nom) return set({ msg: 'Complete al menos ID y Nombre' });
+        if (byId[id]) return set({ msg: 'El ID ' + id + ' ya existe' });
+        const slot = slots.find((p) => !S.nodes.some((n) => Math.abs(n.x - p.x) < 50 && Math.abs(n.y - p.y) < 50));
+        if (!slot) return set({ msg: 'Sin espacio libre en el mockup' });
+        set({ nodes: S.nodes.concat([{ id: id, name: nom, x: slot.x, y: slot.y }]), cambios: true, route: null, nId: '', nNombre: '', nLinea: '', nZona: '', nCap: '', msg: 'Estación ' + nom + ' agregada' });
+      },
+      eliminarEstacion: () => {
+        const n = byId[S.elim]; if (!n) return set({ msg: 'Seleccione una estación' });
+        const cl = Object.assign({}, S.closed); delete cl[n.id];
+        set({ nodes: S.nodes.filter((x) => x.id !== n.id), edges: S.edges.filter((e) => e.a !== n.id && e.b !== n.id), closed: cl, cambios: true, route: null, msg: 'Estación ' + n.name + ' eliminada' });
+      },
+      agregarConexion: () => {
+        const a = S.cOri, b = S.cDes;
+        if (!byId[a] || !byId[b] || a === b) return set({ msg: 'Seleccione dos estaciones distintas' });
+        if (edges.some((e) => (e.a === a && e.b === b) || (e.a === b && e.b === a))) return set({ msg: 'La conexión ya existe' });
+        set({ edges: S.edges.concat([{ a: a, b: b, w: Math.max(1, S.cTiempo) }]), cambios: true, route: null, msg: 'Conexión ' + byId[a].name + ' – ' + byId[b].name + ' agregada' });
+      },
+      eliminarConexion: () => {
+        const a = S.cOri, b = S.cDes;
+        const rest = S.edges.filter((e) => !((e.a === a && e.b === b) || (e.a === b && e.b === a)));
+        if (rest.length === S.edges.length) return set({ msg: 'No existe esa conexión' });
+        set({ edges: rest, cambios: true, route: null, msg: 'Conexión eliminada' });
+      },
+      calcularRuta: () => {
+        if (S.rOri === S.rDes) return set({ dialog: 'mismo' });
+        const r = this.dijkstra(S.nodes, edges, S.closed, S.rOri, S.rDes);
+        const na = byId[S.rOri] ? byId[S.rOri].name : '?', nb = byId[S.rDes] ? byId[S.rDes].name : '?';
+        if (!r) return set({ route: null, dialog: 'ruta', dlgA: na, dlgB: nb });
+        set({ route: r, msg: 'Ruta calculada: ' + r.total + ' min' });
+      },
+      cerrarEstacion: () => {
+        const n = byId[S.cierre]; if (!n || S.closed[n.id]) return set({ msg: 'Seleccione una estación abierta' });
+        const cl = Object.assign({}, S.closed); cl[n.id] = true;
+        const next = openNodes.find((x) => x.id !== n.id);
+        set({ closed: cl, route: null, cierre: next ? next.id : null, msg: 'Estación ' + n.name + ' cerrada (simulación)' });
+      },
+      detectar: () => set({ showSub: true, msg: 'BFS ejecutado sobre la red activa' }),
+      hubs: () => set({ showHubs: true, msg: 'Centralidad de grado calculada' })
+    };
+
+    const subList = comps.map((cp, i) => ({
+      swatch: 'width: 10px; height: 10px; margin-top: 4px; flex: none; border-radius: 2px; background: ' + pal[i % pal.length],
+      text: 'S' + (i + 1) + ': ' + cp.map((id) => byId[id].name).join(', ')
+    }));
+    const hubRows = S.showHubs ? openNodes.slice().sort((x, y) => (deg[y.id] - deg[x.id]) || x.name.localeCompare(y.name)).slice(0, Math.max(1, S.topK)).map((n, i) => ({ rank: i + 1, name: n.name, deg: deg[n.id] })) : [];
+    const closedNames = S.nodes.filter((n) => S.closed[n.id]).map((n) => n.name);
+
+    return {
+      s: S, c: c, f: f, h: h, accent: accent, routeColor: routeColor,
+      windowTitle: 'UrbanRoute — red_metro.csv' + (S.cambios ? ' *' : ''),
+      menuOpen: S.menuOpen,
+      menuBtnStyle: 'height: 100%; padding: 0 12px; border: 0; font: inherit; font-size: 13px; color: #1D2939; cursor: pointer; background: ' + (S.menuOpen ? '#DCE3EE' : 'transparent'),
+      edgesV: edgesV, weightsV: weightsV, nodesV: nodesV, graphEmpty: S.nodes.length === 0,
+      hasRoute: !!route, noRoute: !route,
+      routePath: route ? route.path.map((id) => byId[id] ? byId[id].name : id).join(' → ') : '',
+      routeTotal: route ? route.total : 0,
+      closedText: closedNames.length ? closedNames.join(', ') : 'ninguna',
+      subCount: S.showSub ? comps.length : '—', subList: subList, noSubs: !S.showSub,
+      hubRows: hubRows, noHubs: !S.showHubs,
+      nEst: S.nodes.length, nCon: edges.length,
+      dlg: { any: !!S.dialog, guardar: S.dialog === 'guardar', parseo: S.dialog === 'parseo', ruta: S.dialog === 'ruta', mismo: S.dialog === 'mismo', a: S.dlgA, b: S.dlgB }
+    };
+  }
+}
+</script>
+</body>
+</html>
