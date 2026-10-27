@@ -1,0 +1,16 @@
+#ESTACIONES
+ID_Estacion,Nombre,Linea,Zona,Capacidad_Pasajeros_Hora
+E01,Central,L1,A,12000
+E02,Plaza Norte,L1,A,8000
+E03,Mercado,L1,B,6000
+E04,Universidad,L2,B,9000
+E05,Hospital,L2,C,5000
+E06,Terminal Sur,L2,C,7000
+#CONEXIONES
+Estacion_Origen,Estacion_Destino,Tiempo_Traslado_Min
+E01,E02,4
+E02,E03,6
+E01,E04,5
+E04,E05,3
+E05,E06,7
+E03,E06,10
