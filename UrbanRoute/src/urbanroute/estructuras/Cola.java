@@ -26,7 +26,7 @@ public class Cola<T> {
 
     private NodoCola<T> frente;
     private NodoCola<T> fin;
-    private int tamanio;
+    private int size;
 
     /**
      * Agrega un elemento al final.
@@ -41,7 +41,7 @@ public class Cola<T> {
             fin.siguiente = nuevo;
         }
         fin = nuevo;
-        tamanio++;
+        size++;
     }
 
     /**
@@ -59,7 +59,7 @@ public class Cola<T> {
         if (frente == null) {
             fin = null;
         }
-        tamanio--;
+        size--;
         return dato;
     }
 
@@ -76,11 +76,11 @@ public class Cola<T> {
 
     /** @return true si no hay elementos */
     public boolean estaVacia() {
-        return tamanio == 0;
+        return size == 0;
     }
 
     /** @return cantidad de elementos */
-    public int tamanio() {
-        return tamanio;
+    public int size() {
+        return size;
     }
 }
