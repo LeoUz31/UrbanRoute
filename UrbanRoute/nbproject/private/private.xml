@@ -3,11 +3,9 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/Escritorio/Unimet/Clase%20Estructura/Proyecto%20Urban%20Route/RepositorioGitHubUR/ProyectoUR-EstructuraDeDatos/UrbanRoute/src/urbanroute/grafo/Grafo.java</file>
-            <file>file:/D:/Escritorio/Unimet/Clase%20Estructura/Proyecto%20Urban%20Route/RepositorioGitHubUR/ProyectoUR-EstructuraDeDatos/UrbanRoute/src/urbanroute/motores/CalcularCentralidad.java</file>
-            <file>file:/D:/Escritorio/Unimet/Clase%20Estructura/Proyecto%20Urban%20Route/RepositorioGitHubUR/ProyectoUR-EstructuraDeDatos/UrbanRoute/src/urbanroute/grafo/Arista.java</file>
-            <file>file:/D:/Escritorio/Unimet/Clase%20Estructura/Proyecto%20Urban%20Route/RepositorioGitHubUR/ProyectoUR-EstructuraDeDatos/UrbanRoute/src/urbanroute/motores/CalculadorDijkstra.java</file>
-            <file>file:/D:/Escritorio/Unimet/Clase%20Estructura/Proyecto%20Urban%20Route/RepositorioGitHubUR/ProyectoUR-EstructuraDeDatos/UrbanRoute/src/urbanroute/motores/AnalizadorConectividad.java</file>
+            <file>file:/D:/Escritorio/Unimet/Clase%20Estructura/Proyecto%20Urban%20Route/RepositorioGitHubUR/ProyectoUR-EstructuraDeDatos/UrbanRoute/src/urbanroute/algoritmos/CalculadorCentralidad.java</file>
+            <file>file:/D:/Escritorio/Unimet/Clase%20Estructura/Proyecto%20Urban%20Route/RepositorioGitHubUR/ProyectoUR-EstructuraDeDatos/UrbanRoute/src/urbanroute/controlador/ControladorRed.java</file>
+            <file>file:/D:/Escritorio/Unimet/Clase%20Estructura/Proyecto%20Urban%20Route/RepositorioGitHubUR/ProyectoUR-EstructuraDeDatos/UrbanRoute/src/urbanroute/algoritmos/AnalizadorConectividad.java</file>
         </group>
     </open-files>
 </project-private>
