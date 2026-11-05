@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import urbanroute.dominio.Estacion;
-import urbanroute.estructuras.ArregloDinamico;
+import urbanroute.estructuras.Arreglo;
 import urbanroute.grafo.Arista;
 import urbanroute.grafo.Grafo;
 import urbanroute.hash.TablaHash;
@@ -44,7 +44,7 @@ public class EscritorCSV {
             bw.newLine();
             bw.write(ParserCSV.ENCABEZADO_ESTACIONES);
             bw.newLine();
-            ArregloDinamico<Estacion> estaciones = grafo.getVertices();
+            Arreglo<Estacion> estaciones = grafo.getVertices();
             for (int i = 0; i < estaciones.size(); i++) {
                 Estacion e = tablaHash.buscar(estaciones.obtener(i).getIdEstacion());
                 if (e != null) {
@@ -56,7 +56,7 @@ public class EscritorCSV {
             bw.newLine();
             bw.write(ParserCSV.ENCABEZADO_CONEXIONES);
             bw.newLine();
-            ArregloDinamico<Arista> aristas = grafo.obtenerAristasUnicas();
+            Arreglo<Arista> aristas = grafo.obtenerAristasUnicas();
             for (int i = 0; i < aristas.size(); i++) {
                 bw.write(parser.formatearArista(aristas.obtener(i)));
                 bw.newLine();

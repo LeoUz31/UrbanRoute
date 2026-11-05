@@ -20,13 +20,9 @@ public class Arista {
     /**
      * @param origen        estación origen
      * @param destino       estación destino
-     * @param tiempoMinutos peso (debe ser positivo)
-     * @throws IllegalArgumentException si el tiempo no es positivo
+     * @param tiempoMinutos peso (el Grafo valida que sea positivo)
      */
     public Arista(Estacion origen, Estacion destino, double tiempoMinutos) {
-        if (tiempoMinutos <= 0) {
-            throw new IllegalArgumentException("El tiempo debe ser positivo: " + tiempoMinutos);
-        }
         this.origen = origen;
         this.destino = destino;
         this.tiempoMinutos = tiempoMinutos;
@@ -37,18 +33,17 @@ public class Arista {
     public double getTiempoMinutos() { return tiempoMinutos; }
 
     /**
-     * @param tiempoMinutos nuevo peso (positivo)
+     * @param tiempoMinutos nuevo peso (positivo); si no es positivo se imprime "error"
      */
     public void setTiempoMinutos(double tiempoMinutos) {
         if (tiempoMinutos <= 0) {
-            throw new IllegalArgumentException("El tiempo debe ser positivo: " + tiempoMinutos);
+            System.out.print("error");
+        } else {
+            this.tiempoMinutos = tiempoMinutos;
         }
-        this.tiempoMinutos = tiempoMinutos;
     }
 
-    @Override
-    public String toString() {
+    public String imprimir() {
         return origen.getIdEstacion() + " -> " + destino.getIdEstacion() + " (" + tiempoMinutos + " min)";
     }
 }
-

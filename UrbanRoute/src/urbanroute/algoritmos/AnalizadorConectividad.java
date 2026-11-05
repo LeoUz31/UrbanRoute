@@ -5,7 +5,7 @@
 package urbanroute.algoritmos;
 
 import urbanroute.dominio.Estacion;
-import urbanroute.estructuras.ArregloDinamico;
+import urbanroute.estructuras.Arreglo;
 import urbanroute.estructuras.Cola;
 import urbanroute.grafo.Arista;
 import urbanroute.grafo.Grafo;
@@ -26,8 +26,8 @@ public class AnalizadorConectividad {
     }
 
     /** @return lista de subredes; cada una es la lista de sus estaciones */
-    public ArregloDinamico<ArregloDinamico<Estacion>> obtenerSubredes() {
-        ArregloDinamico<ArregloDinamico<Estacion>> subredes = new ArregloDinamico<>();
+    public Arreglo<Arreglo<Estacion>> obtenerSubredes() {
+        Arreglo<Arreglo<Estacion>> subredes = new Arreglo<>(grafo.numVertices());
         boolean[] visitado = new boolean[grafo.numVertices()];
         for (int i = 0; i < grafo.numVertices(); i++) {
             if (!visitado[i]) {
@@ -65,15 +65,15 @@ public class AnalizadorConectividad {
      * @param visitado marcas compartidas
      * @return estaciones alcanzadas
      */
-    private ArregloDinamico<Estacion> bfs(int inicio, boolean[] visitado) {
-        ArregloDinamico<Estacion> componente = new ArregloDinamico<>();
-        Cola<Integer> cola = new Cola<>();
+    private Arreglo<Estacion> bfs(int inicio, boolean[] visitado) {
+        Arreglo<Estacion> componente = new Arreglo<>(grafo.numVertices());
+        Cola cola = new Cola(grafo.numVertices());
         visitado[inicio] = true;
         cola.encolar(inicio);
-        while (!cola.estaVacia()) {
+        while (!cola.esta_vacia()) {
             int u = cola.desencolar();
             componente.agregar(grafo.obtenerEstacion(u));
-            ArregloDinamico<Arista> ady = grafo.obtenerAdyacentes(u);
+            Arreglo<Arista> ady = grafo.obtenerAdyacentes(u);
             for (int i = 0; i < ady.size(); i++) {
                 int v = grafo.indiceDe(ady.obtener(i).getDestino().getIdEstacion());
                 if (v >= 0 && !visitado[v]) {
@@ -85,4 +85,3 @@ public class AnalizadorConectividad {
         return componente;
     }
 }
-

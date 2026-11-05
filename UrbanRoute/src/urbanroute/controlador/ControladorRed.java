@@ -6,7 +6,7 @@ package urbanroute.controlador;
  */
 
 
-import urbanroute.estructuras.ArregloDinamico;
+import urbanroute.estructuras.Arreglo;
 import java.io.File;
 import java.io.IOException;
 import urbanroute.dominio.Estacion;
@@ -38,10 +38,14 @@ public class ControladorRed {
     private EscritorCSV escritor;
     private File archivoActual;
 
-    /** Crea un controlador con red vacía. */
-    public ControladorRed() {
+    /**
+     * Crea un controlador con red vacía.
+     *
+     * @param maxEstaciones máximo de estaciones de la red (fijo; se da una sola vez)
+     */
+    public ControladorRed(int maxEstaciones) {
         this.tablaHash = new TablaHash();
-        this.grafo = new Grafo(tablaHash);
+        this.grafo = new Grafo(maxEstaciones, tablaHash);
         this.parser = new ParserCSV();
         this.lector = new LectorCSV(parser);
         this.escritor = new EscritorCSV(parser);
@@ -56,12 +60,13 @@ public class ControladorRed {
      *
      * @param archivo archivo CSV
      * @return mensajes de error por línea inválida (vacío si todo OK)
-     * @throws IOException si no se puede leer el a
+     * @throws IOException si no se puede leer el archivo
      */
-    public ArregloDinamico<String> cargarRed(File archivo) throws IOException {
-        ArregloDinamico<String> lineas = lector.leer(archivo);
-        ArregloDinamico<String> errores = new ArregloDinamico<>();
-        ArregloDinamico<Arista> conexiones = new ArregloDinamico<>();
+    public Arreglo<String> cargarRed(File archivo) throws IOException {
+        Arreglo<String> lineas = lector.leer(archivo);
+        // Cada línea produce como mucho un error o una conexión.
+        Arreglo<String> errores = new Arreglo<>(lineas.size());
+        Arreglo<Arista> conexiones = new Arreglo<>(lineas.size());
         grafo.limpiar();
 
         for (int i = 0; i < lineas.size(); i++) {
@@ -69,26 +74,32 @@ public class ControladorRed {
             if (parser.esIgnorable(linea)) {
                 continue;
             }
-            try {
-                if (parser.esEstacion(linea)) {
-                    grafo.agregarEstacion(parser.parsearEstacion(linea));
-                } else if (parser.esConexion(linea)) {
-                    conexiones.agregar(parser.parsearArista(linea));
+            if (parser.esEstacion(linea)) {
+                Estacion e = parser.parsearEstacion(linea);
+                if (e == null) {
+                    errores.agregar("Línea " + (i + 1) + ": " + parser.error);
                 } else {
-                    errores.agregar("Línea " + (i + 1) + ": formato desconocido -> " + linea);
+                    if (!grafo.agregarEstacion(e)) {
+                        errores.agregar("Línea " + (i + 1) + ": ID repetido o máximo de estaciones (" + grafo.getMax() + ") alcanzado");
+                    }
                 }
-            } catch (IllegalArgumentException ex) {
-                errores.agregar("Línea " + (i + 1) + ": " + ex.getMessage());
+            } else if (parser.esConexion(linea)) {
+                Arista a = parser.parsearArista(linea);
+                if (a == null) {
+                    errores.agregar("Línea " + (i + 1) + ": " + parser.error);
+                } else {
+                    conexiones.agregar(a);
+                }
+            } else {
+                errores.agregar("Línea " + (i + 1) + ": formato desconocido -> " + linea);
             }
         }
         for (int i = 0; i < conexiones.size(); i++) {
             Arista a = conexiones.obtener(i);
-            try {
-                agregarSiNoExiste(a.getOrigen().getIdEstacion());
-                agregarSiNoExiste(a.getDestino().getIdEstacion());
-                grafo.agregarArista(a.getOrigen().getIdEstacion(), a.getDestino().getIdEstacion(), a.getTiempoMinutos());
-            } catch (IllegalArgumentException ex) {
-                errores.agregar("Conexión " + a + ": " + ex.getMessage());
+            agregarSiNoExiste(a.getOrigen().getIdEstacion());
+            agregarSiNoExiste(a.getDestino().getIdEstacion());
+            if (!grafo.agregarArista(a.getOrigen().getIdEstacion(), a.getDestino().getIdEstacion(), a.getTiempoMinutos())) {
+                errores.agregar("Conexión " + a.imprimir() + ": lazo, tiempo no positivo o máximo de estaciones alcanzado");
             }
         }
         archivoActual = archivo;
@@ -99,14 +110,15 @@ public class ControladorRed {
     /**
      * Guarda la red en el archivo cargado.
      *
-     * @throws IOException           si falla la escritura
-     * @throws IllegalStateException si no hay archivo asociado
+     * @return false si no hay archivo asociado (usar guardarRed(File))
+     * @throws IOException si falla la escritura
      */
-    public void guardarRed() throws IOException {
+    public boolean guardarRed() throws IOException {
         if (archivoActual == null) {
-            throw new IllegalStateException("No hay archivo asociado; use guardarRed(File)");
+            return false;
         }
         guardarRed(archivoActual);
+        return true;
     }
 
     /**
@@ -186,7 +198,7 @@ public class ControladorRed {
     }
 
     /** @return subredes de la red actual */
-    public ArregloDinamico<ArregloDinamico<Estacion>> detectarSubredes() {
+    public Arreglo<Arreglo<Estacion>> detectarSubredes() {
         return detectarSubredes(grafo);
     }
 
@@ -194,7 +206,7 @@ public class ControladorRed {
      * @param red grafo a usar (real o simulado)
      * @return subredes
      */
-    public ArregloDinamico<ArregloDinamico<Estacion>> detectarSubredes(Grafo red) {
+    public Arreglo<Arreglo<Estacion>> detectarSubredes(Grafo red) {
         return new AnalizadorConectividad(red).obtenerSubredes();
     }
 
@@ -202,7 +214,7 @@ public class ControladorRed {
      * @param k cantidad de hubs
      * @return top-k estaciones por grado
      */
-    public ArregloDinamico<Estacion> obtenerHubs(int k) {
+    public Arreglo<Estacion> obtenerHubs(int k) {
         return new CalculadorCentralidad(grafo).obtenerHubs(k);
     }
 
@@ -226,10 +238,10 @@ public class ControladorRed {
      */
     public Grafo simularCierreLinea(String linea) {
         Grafo copia = grafo.copiar();
-        ArregloDinamico<Estacion> todas = tablaHash.obtenerTodas();
+        Arreglo<Estacion> todas = tablaHash.obtenerTodas();
         for (int i = 0; i < todas.size(); i++) {
             Estacion e = todas.obtener(i);
-            if (e.getLinea().equalsIgnoreCase(linea)) {
+            if (Texto.igualesSinMayusculas(e.getLinea(), linea)) {
                 copia.eliminarEstacion(e.getIdEstacion());
             }
         }
@@ -244,7 +256,7 @@ public class ControladorRed {
     }
 
     /** @return estaciones registradas (para poblar combos) */
-    public ArregloDinamico<Estacion> obtenerEstaciones() {
+    public Arreglo<Estacion> obtenerEstaciones() {
         return tablaHash.obtenerTodas();
     }
 
@@ -259,4 +271,3 @@ public class ControladorRed {
         }
     }
 }
-

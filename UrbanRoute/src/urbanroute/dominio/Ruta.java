@@ -6,7 +6,7 @@ package urbanroute.dominio;
  */
 
 
-import urbanroute.estructuras.ArregloDinamico;
+import urbanroute.estructuras.Arreglo;
 /**
  *
  * @author leo.uzgil@gmail.com
@@ -14,12 +14,12 @@ import urbanroute.estructuras.ArregloDinamico;
  */
 public class Ruta {
 
-    private final ArregloDinamico<Estacion> estaciones;
+    private final Arreglo<Estacion> estaciones;
     private double tiempoTotalMinutos;
 
-    /** Crea una ruta vacía. */
-    public Ruta() {
-        estaciones = new ArregloDinamico<>();
+    /** @param maxEstaciones máximo de estaciones del trayecto (fijo) */
+    public Ruta(int maxEstaciones) {
+        estaciones = new Arreglo<>(maxEstaciones);
         tiempoTotalMinutos = 0;
     }
 
@@ -31,7 +31,7 @@ public class Ruta {
     }
 
     /** @return estaciones en orden de recorrido */
-    public ArregloDinamico<Estacion> getEstaciones() {
+    public Arreglo<Estacion> getEstaciones() {
         return estaciones;
     }
 
@@ -50,19 +50,19 @@ public class Ruta {
         return estaciones.estaVacio();
     }
 
-    @Override
-    public String toString() {
+    public String imprimir() {
+        String texto;
         if (esVacia()) {
             return "Ruta inexistente";
         }
-        StringBuilder sb = new StringBuilder();
+        texto = "";
         for (int i = 0; i < estaciones.size(); i++) {
             if (i > 0) {
-                sb.append(" -> ");
+                texto = texto + " -> ";
             }
-            sb.append(estaciones.obtener(i).getNombre());
+            texto = texto + estaciones.obtener(i).getNombre();
         }
-        sb.append(" [").append(tiempoTotalMinutos).append(" min]");
-        return sb.toString();
+        texto = texto + " [" + tiempoTotalMinutos + " min]";
+        return texto;
     }
 }

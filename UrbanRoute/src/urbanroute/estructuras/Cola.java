@@ -12,75 +12,43 @@ package urbanroute.estructuras;
  * @param <T> tipo de elemento
  * TDA Cola FIFO con nodos enlazados (usada por BFS).
  */
-public class Cola<T> {
+public class Cola {
+    public int Max, cantidad;
+    int[] items;
 
-    /** Nodo interno de la cola. */
-    private static class NodoCola<T> {
-        private final T dato;
-        private NodoCola<T> siguiente;
+    public Cola(int tam){
+        this.Max=tam;
+        this.cantidad=0;
+        this.items=new int[this.Max];
+    }
 
-        NodoCola(T dato) {
-            this.dato = dato;
+    public boolean esta_vacia(){
+        return this.cantidad==0;
+    }
+
+    public void encolar(int item){
+        if (this.cantidad<this.Max){
+            this.items[this.cantidad]=item;
+            this.cantidad++;
+        }else{
+            System.out.print("error");
         }
     }
 
-    private NodoCola<T> frente;
-    private NodoCola<T> fin;
-    private int size;
-
-    /**
-     * Agrega un elemento al final.
-     *
-     * @param dato elemento
-     */
-    public void encolar(T dato) {
-        NodoCola<T> nuevo = new NodoCola<>(dato);
-        if (estaVacia()) {
-            frente = nuevo;
-        } else {
-            fin.siguiente = nuevo;
+    // La posicion equivalente a NULL es en este caso -1.
+    public int desencolar(){
+        int item, indice;
+        if (!this.esta_vacia()){
+            item=this.items[0];
+            indice=0;
+            while (indice<this.cantidad-1){
+                this.items[indice]=this.items[indice+1];
+                indice++;
+            }
+            this.cantidad--;
+            return item;
+        }else{
+            return -1;
         }
-        fin = nuevo;
-        size++;
-    }
-
-    /**
-     * Extrae el elemento del frente.
-     *
-     * @return elemento extraído
-     * @throws IllegalStateException si la cola está vacía
-     */
-    public T desencolar() {
-        if (estaVacia()) {
-            throw new IllegalStateException("La cola está vacía");
-        }
-        T dato = frente.dato;
-        frente = frente.siguiente;
-        if (frente == null) {
-            fin = null;
-        }
-        size--;
-        return dato;
-    }
-
-    /**
-     * @return elemento del frente sin extraerlo
-     * @throws IllegalStateException si la cola está vacía
-     */
-    public T verFrente() {
-        if (estaVacia()) {
-            throw new IllegalStateException("La cola está vacía");
-        }
-        return frente.dato;
-    }
-
-    /** @return true si no hay elementos */
-    public boolean estaVacia() {
-        return size == 0;
-    }
-
-    /** @return cantidad de elementos */
-    public int size() {
-        return size;
     }
 }

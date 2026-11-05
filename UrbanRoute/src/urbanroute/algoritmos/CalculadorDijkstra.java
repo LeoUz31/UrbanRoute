@@ -5,8 +5,7 @@
 package urbanroute.algoritmos;
 
 import urbanroute.dominio.Ruta;
-import urbanroute.estructuras.ArregloDinamico;
-import urbanroute.estructuras.ColaPrioridad;
+import urbanroute.estructuras.Arreglo;
 import urbanroute.grafo.Arista;
 import urbanroute.grafo.Grafo;
 
@@ -31,7 +30,8 @@ public class CalculadorDijkstra {
      * @return ruta óptima; vacía si no existe camino o alguna estación no existe
      */
     public Ruta calcularRuta(String idOrigen, String idDestino) {
-        Ruta ruta = new Ruta();
+        // Un camino pasa como mucho por todas las estaciones.
+        Ruta ruta = new Ruta(grafo.numVertices());
         int origen = grafo.indiceDe(idOrigen);
         int destino = grafo.indiceDe(idDestino);
         if (origen < 0 || destino < 0) {
@@ -41,37 +41,40 @@ public class CalculadorDijkstra {
         double[] distancia = new double[n];
         int[] previo = new int[n];
         boolean[] visitado = new boolean[n];
+        // distancia -1 significa "todavia no alcanzado".
         for (int i = 0; i < n; i++) {
-            distancia[i] = Double.POSITIVE_INFINITY;
+            distancia[i] = -1;
             previo[i] = -1;
         }
         distancia[origen] = 0;
-        ColaPrioridad<Integer> cola = new ColaPrioridad<>();
-        cola.insertar(origen, 0);
-
-        while (!cola.estaVacia()) {
-            int u = cola.extraerMinimo();
-            if (visitado[u]) {
-                continue;
+        boolean terminado = false;
+        while (!terminado) {
+            // Busqueda lineal del vertice no visitado con menor distancia.
+            int u = -1;
+            for (int i = 0; i < n; i++) {
+                if (!visitado[i] && distancia[i] != -1
+                        && (u == -1 || distancia[i] < distancia[u])) {
+                    u = i;
+                }
             }
-            visitado[u] = true;
-            if (u == destino) {
-                break;
-            }
-            ArregloDinamico<Arista> ady = grafo.obtenerAdyacentes(u);
-            for (int i = 0; i < ady.size(); i++) {
-                Arista a = ady.obtener(i);
-                int v = grafo.indiceDe(a.getDestino().getIdEstacion());
-                double nueva = distancia[u] + a.getTiempoMinutos();
-                if (!visitado[v] && nueva < distancia[v]) {
-                    distancia[v] = nueva;
-                    previo[v] = u;
-                    cola.insertar(v, nueva);
+            if (u == -1 || u == destino) {
+                terminado = true;
+            } else {
+                visitado[u] = true;
+                Arreglo<Arista> ady = grafo.obtenerAdyacentes(u);
+                for (int i = 0; i < ady.size(); i++) {
+                    Arista a = ady.obtener(i);
+                    int v = grafo.indiceDe(a.getDestino().getIdEstacion());
+                    double nueva = distancia[u] + a.getTiempoMinutos();
+                    if (!visitado[v] && (distancia[v] == -1 || nueva < distancia[v])) {
+                        distancia[v] = nueva;
+                        previo[v] = u;
+                    }
                 }
             }
         }
 
-        if (distancia[destino] == Double.POSITIVE_INFINITY) {
+        if (distancia[destino] == -1) {
             return ruta;
         }
         reconstruir(ruta, previo, destino);
@@ -94,4 +97,3 @@ public class CalculadorDijkstra {
         }
     }
 }
-

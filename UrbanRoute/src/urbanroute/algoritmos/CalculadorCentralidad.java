@@ -5,7 +5,7 @@
 package urbanroute.algoritmos;
 
 import urbanroute.dominio.Estacion;
-import urbanroute.estructuras.ArregloDinamico;
+import urbanroute.estructuras.Arreglo;
 import urbanroute.grafo.Grafo;
 
 /**
@@ -24,7 +24,7 @@ public class CalculadorCentralidad {
     }
 
     /** @return estaciones ordenadas por grado descendente (empate: ID ascendente) */
-    public ArregloDinamico<Estacion> ordenarPorGrado() {
+    public Arreglo<Estacion> ordenarPorGrado() {
         int n = grafo.numVertices();
         Estacion[] est = new Estacion[n];
         int[] grados = new int[n];
@@ -33,7 +33,7 @@ public class CalculadorCentralidad {
             grados[i] = grafo.obtenerAdyacentes(i).size();
         }
         mergeSort(est, grados, new Estacion[n], new int[n], 0, n - 1);
-        ArregloDinamico<Estacion> res = new ArregloDinamico<>(Math.max(1, n));
+        Arreglo<Estacion> res = new Arreglo<>(n);
         for (int i = 0; i < n; i++) {
             res.agregar(est[i]);
         }
@@ -44,10 +44,17 @@ public class CalculadorCentralidad {
      * @param k cantidad de hubs solicitados
      * @return las k estaciones con mayor grado
      */
-    public ArregloDinamico<Estacion> obtenerHubs(int k) {
-        ArregloDinamico<Estacion> ordenadas = ordenarPorGrado();
-        ArregloDinamico<Estacion> hubs = new ArregloDinamico<>();
-        for (int i = 0; i < k && i < ordenadas.size(); i++) {
+    public Arreglo<Estacion> obtenerHubs(int k) {
+        Arreglo<Estacion> ordenadas = ordenarPorGrado();
+        int cantidad = k;
+        if (cantidad > ordenadas.size()) {
+            cantidad = ordenadas.size();
+        }
+        if (cantidad < 0) {
+            cantidad = 0;
+        }
+        Arreglo<Estacion> hubs = new Arreglo<>(cantidad);
+        for (int i = 0; i < cantidad; i++) {
             hubs.agregar(ordenadas.obtener(i));
         }
         return hubs;
@@ -88,6 +95,6 @@ public class CalculadorCentralidad {
         if (ga != gb) {
             return ga > gb;
         }
-        return a.getIdEstacion().compareTo(b.getIdEstacion()) <= 0;
+        return Texto.comparar(a.getIdEstacion(), b.getIdEstacion()) <= 0;
     }
 }

@@ -13,7 +13,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import urbanroute.estructuras.ArregloDinamico;
+import urbanroute.estructuras.Arreglo;
 
 /**
  *
@@ -39,8 +39,10 @@ public class LectorCSV {
     public File seleccionarArchivo(Component padre) {
         JFileChooser selector = new JFileChooser();
         selector.setFileFilter(new FileNameExtensionFilter("Archivos CSV", "csv", "txt"));
-        return selector.showOpenDialog(padre) == JFileChooser.APPROVE_OPTION
-                ? selector.getSelectedFile() : null;
+        if (selector.showOpenDialog(padre) == JFileChooser.APPROVE_OPTION) {
+            return selector.getSelectedFile();
+        }
+        return null;
     }
 
     /**
@@ -48,16 +50,28 @@ public class LectorCSV {
      *
      * @param archivo archivo de texto
      * @return líneas leídas
+     * @throws IOException si ocurre un error de lectura
      */
-    public ArregloDinamico<String> leer(File archivo) throws IOException {
-        ArregloDinamico<String> lineas = new ArregloDinamico<>();
-        try (BufferedReader br = new BufferedReader(
-                new InputStreamReader(new FileInputStream(archivo), StandardCharsets.UTF_8))) {
-            String linea;
-            while ((linea = br.readLine()) != null) {
-                lineas.agregar(linea);
-            }
+    public Arreglo<String> leer(File archivo) throws IOException {
+        // Primera pasada: contar las líneas para fijar el máximo del arreglo.
+        int total = 0;
+        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(archivo), "UTF-8"));
+        String linea = br.readLine();
+        while (linea != null) {
+            total++;
+            linea = br.readLine();
         }
+        br.close();
+
+        // Segunda pasada: guardar las líneas.
+        Arreglo<String> lineas = new Arreglo<>(total);
+        br = new BufferedReader(new InputStreamReader(new FileInputStream(archivo), "UTF-8"));
+        linea = br.readLine();
+        while (linea != null) {
+            lineas.agregar(linea);
+            linea = br.readLine();
+        }
+        br.close();
         return lineas;
     }
 
@@ -66,4 +80,3 @@ public class LectorCSV {
         return parser;
     }
 }
-

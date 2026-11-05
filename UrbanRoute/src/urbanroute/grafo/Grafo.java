@@ -5,7 +5,7 @@
 package urbanroute.grafo;
 
 import urbanroute.dominio.Estacion;
-import urbanroute.estructuras.ArregloDinamico;
+import urbanroute.estructuras.Arreglo;
 import urbanroute.hash.TablaHash;
 
 /**
@@ -17,36 +17,35 @@ import urbanroute.hash.TablaHash;
  */
 public class Grafo {
 
-    private final ArregloDinamico<Estacion> vertices;
-    private final ArregloDinamico<ArregloDinamico<Arista>> adyacencias;
+    private final int Max;
+    private final Arreglo<Estacion> vertices;
+    private final Arreglo<Arreglo<Arista>> adyacencias;
     private final TablaHash tablaHash;
 
-    /** Crea un grafo vacío con su propia TablaHash. */
-    public Grafo() {
-        this(new TablaHash());
-    }
-
     /**
-     * @param tablaHash índice de estaciones compartido con el controlador
+     * @param maxEstaciones máximo de estaciones (fijo; se da una sola vez)
+     * @param tablaHash     índice de estaciones compartido con el controlador
      */
-    public Grafo(TablaHash tablaHash) {
-        this.vertices = new ArregloDinamico<>();
-        this.adyacencias = new ArregloDinamico<>();
+    public Grafo(int maxEstaciones, TablaHash tablaHash) {
+        this.Max = maxEstaciones;
+        this.vertices = new Arreglo<>(maxEstaciones);
+        this.adyacencias = new Arreglo<>(maxEstaciones);
         this.tablaHash = tablaHash;
     }
 
     /**
-     * Agrega una estación (vértice) si no existe.
+     * Agrega una estación (vértice) si no existe y si hay espacio.
      *
      * @param estacion estación
-     * @return true si se agregó
+     * @return true si se agregó; false si ya existía o se alcanzó el máximo
      */
     public boolean agregarEstacion(Estacion estacion) {
-        if (existeEstacion(estacion.getIdEstacion())) {
+        if (existeEstacion(estacion.getIdEstacion()) || vertices.estaLleno()) {
             return false;
         }
         vertices.agregar(estacion);
-        adyacencias.agregar(new ArregloDinamico<>());
+        // Una estación puede conectarse como mucho con todas las demás.
+        adyacencias.agregar(new Arreglo<>(Max));
         tablaHash.insertar(estacion.getIdEstacion(), estacion);
         return true;
     }
@@ -63,7 +62,7 @@ public class Grafo {
             return null;
         }
         Estacion eliminada = vertices.obtener(idx);
-        ArregloDinamico<Arista> salientes = adyacencias.obtener(idx);
+        Arreglo<Arista> salientes = adyacencias.obtener(idx);
         for (int i = 0; i < salientes.size(); i++) {
             int vecino = indiceDe(salientes.obtener(i).getDestino().getIdEstacion());
             if (vecino >= 0) {
@@ -82,17 +81,14 @@ public class Grafo {
      * @param idOrigen      ID origen
      * @param idDestino     ID destino
      * @param tiempoMinutos peso positivo
-     * @return true si se creó o actualizó
-     * @throws IllegalArgumentException si alguna estación no existe o es un lazo
+     * @return true si se creó o actualizó; false si alguna estación no existe,
+     *         si es un lazo o si el tiempo no es positivo
      */
     public boolean agregarArista(String idOrigen, String idDestino, double tiempoMinutos) {
         int a = indiceDe(idOrigen);
         int b = indiceDe(idDestino);
-        if (a < 0 || b < 0) {
-            throw new IllegalArgumentException("Estación inexistente: " + (a < 0 ? idOrigen : idDestino));
-        }
-        if (a == b) {
-            throw new IllegalArgumentException("No se permiten lazos: " + idOrigen);
+        if (a < 0 || b < 0 || a == b || tiempoMinutos <= 0) {
+            return false;
         }
         Arista existente = buscarArista(a, idDestino);
         if (existente != null) {
@@ -129,16 +125,16 @@ public class Grafo {
      * @param idEstacion ID
      * @return aristas salientes de la estación (vacío si no existe)
      */
-    public ArregloDinamico<Arista> obtenerAdyacentes(String idEstacion) {
+    public Arreglo<Arista> obtenerAdyacentes(String idEstacion) {
         int idx = indiceDe(idEstacion);
-        return idx < 0 ? new ArregloDinamico<>() : adyacencias.obtener(idx);
+        return idx < 0 ? new Arreglo<Arista>(0) : adyacencias.obtener(idx);
     }
 
     /**
      * @param indice índice del vértice
      * @return aristas salientes del vértice
      */
-    public ArregloDinamico<Arista> obtenerAdyacentes(int indice) {
+    public Arreglo<Arista> obtenerAdyacentes(int indice) {
         return adyacencias.obtener(indice);
     }
 
@@ -152,10 +148,15 @@ public class Grafo {
     }
 
     /** @return lista de aristas sin duplicar (cada conexión no dirigida una vez) */
-    public ArregloDinamico<Arista> obtenerAristasUnicas() {
-        ArregloDinamico<Arista> unicas = new ArregloDinamico<>();
+    public Arreglo<Arista> obtenerAristasUnicas() {
+        // Cada conexión aparece dos veces en las listas: el total es la suma de grados / 2.
+        int total = 0;
         for (int i = 0; i < vertices.size(); i++) {
-            ArregloDinamico<Arista> lista = adyacencias.obtener(i);
+            total = total + adyacencias.obtener(i).size();
+        }
+        Arreglo<Arista> unicas = new Arreglo<>(total / 2);
+        for (int i = 0; i < vertices.size(); i++) {
+            Arreglo<Arista> lista = adyacencias.obtener(i);
             for (int j = 0; j < lista.size(); j++) {
                 Arista ar = lista.obtener(j);
                 if (indiceDe(ar.getDestino().getIdEstacion()) > i) {
@@ -201,13 +202,18 @@ public class Grafo {
         return tablaHash.contiene(idEstacion);
     }
 
+    /** @return máximo de estaciones */
+    public int getMax() {
+        return Max;
+    }
+
     /** @return número de vértices */
     public int numVertices() {
         return vertices.size();
     }
 
     /** @return vértices del grafo */
-    public ArregloDinamico<Estacion> getVertices() {
+    public Arreglo<Estacion> getVertices() {
         return vertices;
     }
 
@@ -222,11 +228,11 @@ public class Grafo {
      * @return nuevo Grafo independiente
      */
     public Grafo copiar() {
-        Grafo copia = new Grafo(new TablaHash());
+        Grafo copia = new Grafo(Max, new TablaHash());
         for (int i = 0; i < vertices.size(); i++) {
             copia.agregarEstacion(vertices.obtener(i));
         }
-        ArregloDinamico<Arista> aristas = obtenerAristasUnicas();
+        Arreglo<Arista> aristas = obtenerAristasUnicas();
         for (int i = 0; i < aristas.size(); i++) {
             Arista a = aristas.obtener(i);
             copia.agregarArista(a.getOrigen().getIdEstacion(), a.getDestino().getIdEstacion(), a.getTiempoMinutos());
@@ -242,18 +248,18 @@ public class Grafo {
     }
 
     private Arista buscarArista(int indiceOrigen, String idDestino) {
-        ArregloDinamico<Arista> lista = adyacencias.obtener(indiceOrigen);
+        Arreglo<Arista> lista = adyacencias.obtener(indiceOrigen);
         for (int i = 0; i < lista.size(); i++) {
-            if (lista.obtener(i).getDestino().getIdEstacion().equals(idDestino)) {
+            if (Texto.iguales(lista.obtener(i).getDestino().getIdEstacion(), idDestino)) {
                 return lista.obtener(i);
             }
         }
         return null;
     }
 
-    private boolean eliminarDeLista(ArregloDinamico<Arista> lista, String idDestino) {
+    private boolean eliminarDeLista(Arreglo<Arista> lista, String idDestino) {
         for (int i = 0; i < lista.size(); i++) {
-            if (lista.obtener(i).getDestino().getIdEstacion().equals(idDestino)) {
+            if (Texto.iguales(lista.obtener(i).getDestino().getIdEstacion(), idDestino)) {
                 lista.eliminar(i);
                 return true;
             }
