@@ -1,3 +1,7 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package urbanroute.persistencia;
 
 import java.awt.Component;
@@ -12,7 +16,10 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import urbanroute.estructuras.ArregloDinamico;
 
 /**
+ *
+ * @author leo.uzgil@gmail.com
  * Selección de archivo (JFileChooser) y lectura de líneas del CSV.
+
  */
 public class LectorCSV {
 
@@ -41,7 +48,6 @@ public class LectorCSV {
      *
      * @param archivo archivo de texto
      * @return líneas leídas
-     * @throws IOException si ocurre un error de lectura
      */
     public ArregloDinamico<String> leer(File archivo) throws IOException {
         ArregloDinamico<String> lineas = new ArregloDinamico<>();
@@ -60,3 +66,4 @@ public class LectorCSV {
         return parser;
     }
 }
+

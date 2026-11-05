@@ -1,9 +1,14 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package urbanroute.hash;
 
 import urbanroute.dominio.Estacion;
 
 /**
- * Par clave-valor para el encadenamiento de la TablaHash.
+ *
+ * @author leo.uzgil@gmail.com
  */
 public class NodoHash {
 

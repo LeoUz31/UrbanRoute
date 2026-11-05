@@ -1,15 +1,17 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package urbanroute.persistencia;
 
 import urbanroute.dominio.Estacion;
 import urbanroute.grafo.Arista;
-
 /**
+ *
+ * @author leo.uzgil@gmail.com
  * Convierte líneas CSV en objetos de dominio.
- * <ul>
- *   <li>Estación (5 campos): ID_Estacion,Nombre,Linea,Zona,Capacidad_Pasajeros_Hora</li>
- *   <li>Conexión (3 campos): Estacion_Origen,Estacion_Destino,Tiempo_Traslado_Min</li>
- * </ul>
  * Las líneas vacías, de comentario (#) y de encabezado se ignoran.
+ * 
  */
 public class ParserCSV {
 
@@ -24,10 +26,40 @@ public class ParserCSV {
      * @return true si es vacía, comentario o encabezado
      */
     public boolean esIgnorable(String linea) {
-        String l = linea.trim();
-        return l.isEmpty() || l.startsWith("#")
-                || l.equalsIgnoreCase(ENCABEZADO_ESTACIONES)
-                || l.equalsIgnoreCase(ENCABEZADO_CONEXIONES);
+        int inicio = 0;
+        int fin = linea.length() - 1;
+        while (inicio <= fin && esBlanco(linea.charAt(inicio))) {
+            inicio++;
+        }
+        while (fin >= inicio && esBlanco(linea.charAt(fin))) {
+            fin--;
+        }
+        if (inicio > fin || linea.charAt(inicio) == '#') {
+            return true;
+        }
+        return coincide(linea, inicio, fin, ENCABEZADO_ESTACIONES)
+                || coincide(linea, inicio, fin, ENCABEZADO_CONEXIONES);
+    }
+
+    private boolean esBlanco(char c) {
+        return c == ' ' || c == '\t' || c == '\r' || c == '\n';
+    }
+
+    /** Compara linea[inicio..fin] con patron ignorando mayúsculas/minúsculas (ASCII), con un ciclo. */
+    private boolean coincide(String linea, int inicio, int fin, String patron) {
+        if (fin - inicio + 1 != patron.length()) {
+            return false;
+        }
+        for (int i = 0; i < patron.length(); i++) {
+            if (aMinuscula(linea.charAt(inicio + i)) != aMinuscula(patron.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private char aMinuscula(char c) {
+        return (c >= 'A' && c <= 'Z') ? (char) (c + 32) : c;
     }
 
     /**
@@ -126,3 +158,4 @@ public class ParserCSV {
         }
     }
 }
+

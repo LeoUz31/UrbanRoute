@@ -1,21 +1,29 @@
 package urbanroute.controlador;
 
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+
+
+import urbanroute.estructuras.ArregloDinamico;
 import java.io.File;
 import java.io.IOException;
 import urbanroute.dominio.Estacion;
 import urbanroute.dominio.Ruta;
-import urbanroute.estructuras.ArregloDinamico;
 import urbanroute.grafo.Arista;
 import urbanroute.grafo.Grafo;
 import urbanroute.hash.TablaHash;
-import urbanroute.motores.AnalizadorConectividad;
-import urbanroute.motores.CalculadorCentralidad;
-import urbanroute.motores.CalculadorDijkstra;
+import urbanroute.algoritmos.AnalizadorConectividad;
+import urbanroute.algoritmos.CalculadorCentralidad;
+import urbanroute.algoritmos.CalculadorDijkstra;
 import urbanroute.persistencia.EscritorCSV;
 import urbanroute.persistencia.LectorCSV;
 import urbanroute.persistencia.ParserCSV;
 
 /**
+ *
+ * @author leo.uzgil@gmail.com
  * Mediador MVC: orquesta carga/guardado, edición de la red y motores algorítmicos.
  * No conoce Swing; la vista consulta {@link #hayCambiosPendientes()} para las alertas.
  */
@@ -251,3 +259,4 @@ public class ControladorRed {
         }
     }
 }
+

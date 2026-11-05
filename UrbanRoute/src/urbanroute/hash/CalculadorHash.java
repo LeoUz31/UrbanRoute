@@ -1,6 +1,12 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package urbanroute.hash;
 
 /**
+ *
+ * @author leo.uzgil@gmail.com
  * Transforma una clave de texto en un índice de cubeta (hash polinomial base 31).
  */
 public class CalculadorHash {
@@ -20,3 +26,4 @@ public class CalculadorHash {
         return (int) Math.abs(h % capacidad);
     }
 }
+

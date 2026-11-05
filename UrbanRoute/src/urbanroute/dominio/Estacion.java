@@ -1,6 +1,15 @@
 package urbanroute.dominio;
 
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+
+
+
 /**
+ *
+ * @author leo.uzgil@gmail.com
  * Contenedor pasivo de los datos de una estación.
  */
 public class Estacion {

@@ -1,4 +1,8 @@
-package urbanroute.motores;
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package urbanroute.algoritmos;
 
 import urbanroute.dominio.Estacion;
 import urbanroute.estructuras.ArregloDinamico;
@@ -7,6 +11,8 @@ import urbanroute.grafo.Arista;
 import urbanroute.grafo.Grafo;
 
 /**
+ *
+ * @author leo.uzgil@gmail.com
  * Detecta subredes (componentes conexos) mediante BFS con Cola propia.
  * Solo lectura sobre el Grafo.
  */
@@ -79,3 +85,4 @@ public class AnalizadorConectividad {
         return componente;
     }
 }
+

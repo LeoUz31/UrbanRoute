@@ -1,8 +1,15 @@
 package urbanroute.estructuras;
 
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+
+
 /**
- * Reemplazo propio de ArrayList. Crece duplicando su capacidad.
  *
+ * @author leo.uzgil@gmail.com
+ * Clase de Arreglo dinamico
  * @param <T> tipo de elemento almacenado
  */
 public class ArregloDinamico<T> {
@@ -154,3 +161,4 @@ public class ArregloDinamico<T> {
         }
     }
 }
+

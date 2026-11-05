@@ -1,9 +1,16 @@
 package urbanroute.estructuras;
 
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+
+
 /**
- * TDA Cola FIFO con nodos enlazados (usada por BFS).
  *
+ * @author leo.uzgil@gmail.com
  * @param <T> tipo de elemento
+ * TDA Cola FIFO con nodos enlazados (usada por BFS).
  */
 public class Cola<T> {
 

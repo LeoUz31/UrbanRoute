@@ -1,8 +1,15 @@
 package urbanroute.dominio;
 
-import urbanroute.estructuras.ArregloDinamico;
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 
+
+import urbanroute.estructuras.ArregloDinamico;
 /**
+ *
+ * @author leo.uzgil@gmail.com
  * Resultado de una ruta: secuencia de estaciones y tiempo total.
  */
 public class Ruta {

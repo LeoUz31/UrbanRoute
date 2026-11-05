@@ -1,3 +1,7 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package urbanroute.persistencia;
 
 import java.io.BufferedWriter;
@@ -13,6 +17,8 @@ import urbanroute.grafo.Grafo;
 import urbanroute.hash.TablaHash;
 
 /**
+ *
+ * @author leo.uzgil@gmail.com
  * Escribe el estado de la TablaHash (estaciones) y del Grafo (conexiones) al CSV.
  * Cada conexión no dirigida se escribe una sola vez.
  */

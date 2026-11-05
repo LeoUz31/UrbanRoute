@@ -1,12 +1,18 @@
-package urbanroute.motores;
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package urbanroute.algoritmos;
 
 import urbanroute.dominio.Estacion;
 import urbanroute.estructuras.ArregloDinamico;
 import urbanroute.grafo.Grafo;
 
 /**
- * Centralidad de grado: ordena estaciones por número de conexiones (MergeSort propio)
- * para identificar hubs de transferencia. Solo lectura sobre el Grafo.
+ *
+ * @author leo.uzgil@gmail.com
+ * Centralidad de grado: ordena estaciones por número de conexiones (MergeSort propio) para identificar hubs de transferencia. Solo lectura sobre el Grafo.
+ * 
  */
 public class CalculadorCentralidad {
 

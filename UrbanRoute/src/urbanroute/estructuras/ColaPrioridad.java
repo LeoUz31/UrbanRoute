@@ -1,8 +1,18 @@
 package urbanroute.estructuras;
 
+
+
+
+
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+
 /**
- * Min-Heap propio para Dijkstra. Extrae siempre el elemento de menor prioridad.
  *
+ * @author leo.uzgil@gmail.com
+ * Min-Heap propio para Dijkstra. Extrae siempre el elemento de menor prioridad.
  * @param <T> tipo de elemento
  */
 public class ColaPrioridad<T> {
