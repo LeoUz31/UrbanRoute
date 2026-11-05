@@ -56,7 +56,7 @@ public class Ruta {
             return "Ruta inexistente";
         }
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < estaciones.tamanio(); i++) {
+        for (int i = 0; i < estaciones.size(); i++) {
             if (i > 0) {
                 sb.append(" -> ");
             }

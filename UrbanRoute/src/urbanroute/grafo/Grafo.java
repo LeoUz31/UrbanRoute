@@ -64,7 +64,7 @@ public class Grafo {
         }
         Estacion eliminada = vertices.obtener(idx);
         ArregloDinamico<Arista> salientes = adyacencias.obtener(idx);
-        for (int i = 0; i < salientes.tamanio(); i++) {
+        for (int i = 0; i < salientes.size(); i++) {
             int vecino = indiceDe(salientes.obtener(i).getDestino().getIdEstacion());
             if (vecino >= 0) {
                 eliminarDeLista(adyacencias.obtener(vecino), idEstacion);
@@ -148,15 +148,15 @@ public class Grafo {
      */
     public int obtenerGrado(String idEstacion) {
         int idx = indiceDe(idEstacion);
-        return idx < 0 ? -1 : adyacencias.obtener(idx).tamanio();
+        return idx < 0 ? -1 : adyacencias.obtener(idx).size();
     }
 
     /** @return lista de aristas sin duplicar (cada conexión no dirigida una vez) */
     public ArregloDinamico<Arista> obtenerAristasUnicas() {
         ArregloDinamico<Arista> unicas = new ArregloDinamico<>();
-        for (int i = 0; i < vertices.tamanio(); i++) {
+        for (int i = 0; i < vertices.size(); i++) {
             ArregloDinamico<Arista> lista = adyacencias.obtener(i);
-            for (int j = 0; j < lista.tamanio(); j++) {
+            for (int j = 0; j < lista.size(); j++) {
                 Arista ar = lista.obtener(j);
                 if (indiceDe(ar.getDestino().getIdEstacion()) > i) {
                     unicas.agregar(ar);
@@ -203,7 +203,7 @@ public class Grafo {
 
     /** @return número de vértices */
     public int numVertices() {
-        return vertices.tamanio();
+        return vertices.size();
     }
 
     /** @return vértices del grafo */
@@ -223,11 +223,11 @@ public class Grafo {
      */
     public Grafo copiar() {
         Grafo copia = new Grafo(new TablaHash());
-        for (int i = 0; i < vertices.tamanio(); i++) {
+        for (int i = 0; i < vertices.size(); i++) {
             copia.agregarEstacion(vertices.obtener(i));
         }
         ArregloDinamico<Arista> aristas = obtenerAristasUnicas();
-        for (int i = 0; i < aristas.tamanio(); i++) {
+        for (int i = 0; i < aristas.size(); i++) {
             Arista a = aristas.obtener(i);
             copia.agregarArista(a.getOrigen().getIdEstacion(), a.getDestino().getIdEstacion(), a.getTiempoMinutos());
         }
@@ -243,7 +243,7 @@ public class Grafo {
 
     private Arista buscarArista(int indiceOrigen, String idDestino) {
         ArregloDinamico<Arista> lista = adyacencias.obtener(indiceOrigen);
-        for (int i = 0; i < lista.tamanio(); i++) {
+        for (int i = 0; i < lista.size(); i++) {
             if (lista.obtener(i).getDestino().getIdEstacion().equals(idDestino)) {
                 return lista.obtener(i);
             }
@@ -252,7 +252,7 @@ public class Grafo {
     }
 
     private boolean eliminarDeLista(ArregloDinamico<Arista> lista, String idDestino) {
-        for (int i = 0; i < lista.tamanio(); i++) {
+        for (int i = 0; i < lista.size(); i++) {
             if (lista.obtener(i).getDestino().getIdEstacion().equals(idDestino)) {
                 lista.eliminar(i);
                 return true;

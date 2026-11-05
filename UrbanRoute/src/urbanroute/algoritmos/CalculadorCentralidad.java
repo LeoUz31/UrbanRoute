@@ -30,7 +30,7 @@ public class CalculadorCentralidad {
         int[] grados = new int[n];
         for (int i = 0; i < n; i++) {
             est[i] = grafo.obtenerEstacion(i);
-            grados[i] = grafo.obtenerAdyacentes(i).tamanio();
+            grados[i] = grafo.obtenerAdyacentes(i).size();
         }
         mergeSort(est, grados, new Estacion[n], new int[n], 0, n - 1);
         ArregloDinamico<Estacion> res = new ArregloDinamico<>(Math.max(1, n));
@@ -47,7 +47,7 @@ public class CalculadorCentralidad {
     public ArregloDinamico<Estacion> obtenerHubs(int k) {
         ArregloDinamico<Estacion> ordenadas = ordenarPorGrado();
         ArregloDinamico<Estacion> hubs = new ArregloDinamico<>();
-        for (int i = 0; i < k && i < ordenadas.tamanio(); i++) {
+        for (int i = 0; i < k && i < ordenadas.size(); i++) {
             hubs.agregar(ordenadas.obtener(i));
         }
         return hubs;

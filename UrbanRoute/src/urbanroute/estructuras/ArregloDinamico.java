@@ -18,7 +18,7 @@ public class ArregloDinamico<T> {
 
     private Object[] datos;
     private int capacidad;
-    private int tamanio;
+    private int size;
 
     /** Crea un arreglo vacío con capacidad inicial por defecto. */
     public ArregloDinamico() {
@@ -33,7 +33,7 @@ public class ArregloDinamico<T> {
     public ArregloDinamico(int capacidadInicial) {
         this.capacidad = Math.max(1, capacidadInicial);
         this.datos = new Object[this.capacidad];
-        this.tamanio = 0;
+        this.size = 0;
     }
 
     /**
@@ -42,10 +42,10 @@ public class ArregloDinamico<T> {
      * @param elemento elemento a insertar
      */
     public void agregar(T elemento) {
-        if (tamanio == capacidad) {
+        if (size == capacidad) {
             redimensionar(capacidad * 2);
         }
-        datos[tamanio++] = elemento;
+        datos[size++] = elemento;
     }
 
     /**
@@ -83,10 +83,10 @@ public class ArregloDinamico<T> {
     public T eliminar(int indice) {
         validarIndice(indice);
         T eliminado = (T) datos[indice];
-        for (int i = indice; i < tamanio - 1; i++) {
+        for (int i = indice; i < size - 1; i++) {
             datos[i] = datos[i + 1];
         }
-        datos[--tamanio] = null;
+        datos[--size] = null;
         return eliminado;
     }
 
@@ -112,7 +112,7 @@ public class ArregloDinamico<T> {
      * @return índice o -1 si no existe
      */
     public int indiceDe(T elemento) {
-        for (int i = 0; i < tamanio; i++) {
+        for (int i = 0; i < size; i++) {
             if (elemento == null ? datos[i] == null : elemento.equals(datos[i])) {
                 return i;
             }
@@ -129,26 +129,26 @@ public class ArregloDinamico<T> {
     }
 
     /** @return cantidad de elementos */
-    public int tamanio() {
-        return tamanio;
+    public int size() {
+        return size;
     }
 
     /** @return true si no hay elementos */
     public boolean estaVacio() {
-        return tamanio == 0;
+        return size == 0;
     }
 
     /** Vacía el arreglo conservando la capacidad. */
     public void limpiar() {
-        for (int i = 0; i < tamanio; i++) {
+        for (int i = 0; i < size; i++) {
             datos[i] = null;
         }
-        tamanio = 0;
+        size = 0;
     }
 
     private void redimensionar(int nuevaCapacidad) {
         Object[] nuevo = new Object[nuevaCapacidad];
-        for (int i = 0; i < tamanio; i++) {
+        for (int i = 0; i < size; i++) {
             nuevo[i] = datos[i];
         }
         datos = nuevo;
@@ -156,8 +156,8 @@ public class ArregloDinamico<T> {
     }
 
     private void validarIndice(int indice) {
-        if (indice < 0 || indice >= tamanio) {
-            throw new IndexOutOfBoundsException("Índice " + indice + " fuera de rango [0," + tamanio + ")");
+        if (indice < 0 || indice >= size) {
+            throw new IndexOutOfBoundsException("Índice " + indice + " fuera de rango [0," + size + ")");
         }
     }
 }

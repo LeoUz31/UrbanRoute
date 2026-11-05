@@ -59,7 +59,7 @@ public class CalculadorDijkstra {
                 break;
             }
             ArregloDinamico<Arista> ady = grafo.obtenerAdyacentes(u);
-            for (int i = 0; i < ady.tamanio(); i++) {
+            for (int i = 0; i < ady.size(); i++) {
                 Arista a = ady.obtener(i);
                 int v = grafo.indiceDe(a.getDestino().getIdEstacion());
                 double nueva = distancia[u] + a.getTiempoMinutos();

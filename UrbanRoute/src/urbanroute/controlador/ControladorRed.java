@@ -64,7 +64,7 @@ public class ControladorRed {
         ArregloDinamico<Arista> conexiones = new ArregloDinamico<>();
         grafo.limpiar();
 
-        for (int i = 0; i < lineas.tamanio(); i++) {
+        for (int i = 0; i < lineas.size(); i++) {
             String linea = lineas.obtener(i);
             if (parser.esIgnorable(linea)) {
                 continue;
@@ -81,7 +81,7 @@ public class ControladorRed {
                 errores.agregar("Línea " + (i + 1) + ": " + ex.getMessage());
             }
         }
-        for (int i = 0; i < conexiones.tamanio(); i++) {
+        for (int i = 0; i < conexiones.size(); i++) {
             Arista a = conexiones.obtener(i);
             try {
                 agregarSiNoExiste(a.getOrigen().getIdEstacion());
@@ -227,7 +227,7 @@ public class ControladorRed {
     public Grafo simularCierreLinea(String linea) {
         Grafo copia = grafo.copiar();
         ArregloDinamico<Estacion> todas = tablaHash.obtenerTodas();
-        for (int i = 0; i < todas.tamanio(); i++) {
+        for (int i = 0; i < todas.size(); i++) {
             Estacion e = todas.obtener(i);
             if (e.getLinea().equalsIgnoreCase(linea)) {
                 copia.eliminarEstacion(e.getIdEstacion());

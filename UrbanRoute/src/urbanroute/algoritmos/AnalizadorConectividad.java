@@ -39,7 +39,7 @@ public class AnalizadorConectividad {
 
     /** @return número de subredes */
     public int contarSubredes() {
-        return obtenerSubredes().tamanio();
+        return obtenerSubredes().size();
     }
 
     /**
@@ -74,7 +74,7 @@ public class AnalizadorConectividad {
             int u = cola.desencolar();
             componente.agregar(grafo.obtenerEstacion(u));
             ArregloDinamico<Arista> ady = grafo.obtenerAdyacentes(u);
-            for (int i = 0; i < ady.tamanio(); i++) {
+            for (int i = 0; i < ady.size(); i++) {
                 int v = grafo.indiceDe(ady.obtener(i).getDestino().getIdEstacion());
                 if (v >= 0 && !visitado[v]) {
                     visitado[v] = true;

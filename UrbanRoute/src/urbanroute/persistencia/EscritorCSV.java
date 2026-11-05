@@ -45,7 +45,7 @@ public class EscritorCSV {
             bw.write(ParserCSV.ENCABEZADO_ESTACIONES);
             bw.newLine();
             ArregloDinamico<Estacion> estaciones = grafo.getVertices();
-            for (int i = 0; i < estaciones.tamanio(); i++) {
+            for (int i = 0; i < estaciones.size(); i++) {
                 Estacion e = tablaHash.buscar(estaciones.obtener(i).getIdEstacion());
                 if (e != null) {
                     bw.write(parser.formatearEstacion(e));
@@ -57,7 +57,7 @@ public class EscritorCSV {
             bw.write(ParserCSV.ENCABEZADO_CONEXIONES);
             bw.newLine();
             ArregloDinamico<Arista> aristas = grafo.obtenerAristasUnicas();
-            for (int i = 0; i < aristas.tamanio(); i++) {
+            for (int i = 0; i < aristas.size(); i++) {
                 bw.write(parser.formatearArista(aristas.obtener(i)));
                 bw.newLine();
             }
