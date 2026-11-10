@@ -5,7 +5,8 @@
 package urbanroute.algoritmos;
 
 import urbanroute.dominio.Estacion;
-import urbanroute.estructuras.Arreglo;
+import urbanroute.estructuras.ListaEnlazada;
+import urbanroute.estructuras.Nodo;
 import urbanroute.grafo.Grafo;
 
 /**
@@ -16,85 +17,59 @@ import urbanroute.grafo.Grafo;
  */
 public class CalculadorCentralidad {
 
-    private final Grafo grafo;
+    private Grafo grafo;
 
-    /** @param grafo red a analizar */
     public CalculadorCentralidad(Grafo grafo) {
         this.grafo = grafo;
     }
 
     /** @return estaciones ordenadas por grado descendente (empate: ID ascendente) */
-    public Arreglo<Estacion> ordenarPorGrado() {
-        int n = grafo.numVertices();
-        Estacion[] est = new Estacion[n];
-        int[] grados = new int[n];
-        for (int i = 0; i < n; i++) {
-            est[i] = grafo.obtenerEstacion(i);
-            grados[i] = grafo.obtenerAdyacentes(i).size();
+    public ListaEnlazada<Estacion> ordenarPorGrado() {
+        ListaEnlazada<Estacion> ordenadas = new ListaEnlazada<>();
+        Nodo<Estacion> n = grafo.getVertices().getCabeza();
+        while (n != null) {
+            // Ordenamiento por inserción: se inserta antes del primer nodo que debe ir después.
+            Estacion nueva = n.getDato();
+            Nodo<Estacion> pos = ordenadas.getCabeza();
+            boolean insertada = false;
+            while (pos != null && !insertada) {
+                if (vaAntes(nueva, pos.getDato())) {
+                    ordenadas.insertarAntesDe(pos, nueva);
+                    insertada = true;
+                } else {
+                    pos = pos.getSiguiente();
+                }
+            }
+            if (!insertada) {
+                ordenadas.insertarAlFinal(nueva);
+            }
+            n = n.getSiguiente();
         }
-        mergeSort(est, grados, new Estacion[n], new int[n], 0, n - 1);
-        Arreglo<Estacion> res = new Arreglo<>(n);
-        for (int i = 0; i < n; i++) {
-            res.agregar(est[i]);
-        }
-        return res;
+        return ordenadas;
     }
 
-    /**
-     * @param k cantidad de hubs solicitados
-     * @return las k estaciones con mayor grado
-     */
-    public Arreglo<Estacion> obtenerHubs(int k) {
-        Arreglo<Estacion> ordenadas = ordenarPorGrado();
-        int cantidad = k;
-        if (cantidad > ordenadas.size()) {
-            cantidad = ordenadas.size();
-        }
-        if (cantidad < 0) {
-            cantidad = 0;
-        }
-        Arreglo<Estacion> hubs = new Arreglo<>(cantidad);
-        for (int i = 0; i < cantidad; i++) {
-            hubs.agregar(ordenadas.obtener(i));
+    /** @return las k estaciones con mayor grado */
+    public ListaEnlazada<Estacion> obtenerHubs(int k) {
+        ListaEnlazada<Estacion> hubs = new ListaEnlazada<>();
+        Nodo<Estacion> n = ordenarPorGrado().getCabeza();
+        while (n != null && hubs.getSize() < k) {
+            hubs.insertarAlFinal(n.getDato());
+            n = n.getSiguiente();
         }
         return hubs;
     }
 
-    /**
-     * @param idEstacion ID
-     * @return grado de la estación
-     */
     public int obtenerGrado(String idEstacion) {
         return grafo.obtenerGrado(idEstacion);
     }
 
-    private void mergeSort(Estacion[] e, int[] g, Estacion[] te, int[] tg, int ini, int fin) {
-        if (ini >= fin) {
-            return;
-        }
-        int mid = (ini + fin) / 2;
-        mergeSort(e, g, te, tg, ini, mid);
-        mergeSort(e, g, te, tg, mid + 1, fin);
-        int i = ini, j = mid + 1, k = ini;
-        while (i <= mid && j <= fin) {
-            if (vaAntes(e[i], g[i], e[j], g[j])) {
-                te[k] = e[i]; tg[k++] = g[i++];
-            } else {
-                te[k] = e[j]; tg[k++] = g[j++];
-            }
-        }
-        while (i <= mid) { te[k] = e[i]; tg[k++] = g[i++]; }
-        while (j <= fin) { te[k] = e[j]; tg[k++] = g[j++]; }
-        for (k = ini; k <= fin; k++) {
-            e[k] = te[k];
-            g[k] = tg[k];
-        }
-    }
-
-    private boolean vaAntes(Estacion a, int ga, Estacion b, int gb) {
+    /** @return true si a debe ir antes que b (más grado primero; empate por ID) */
+    private boolean vaAntes(Estacion a, Estacion b) {
+        int ga = grafo.obtenerGrado(a.getIdEstacion());
+        int gb = grafo.obtenerGrado(b.getIdEstacion());
         if (ga != gb) {
             return ga > gb;
         }
-        return Texto.comparar(a.getIdEstacion(), b.getIdEstacion()) <= 0;
+        return a.getIdEstacion().compareTo(b.getIdEstacion()) < 0;
     }
 }

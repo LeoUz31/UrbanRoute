@@ -21,82 +21,49 @@ public class ParserCSV {
     public static final String ENCABEZADO_ESTACIONES = "ID_Estacion,Nombre,Linea,Zona,Capacidad_Pasajeros_Hora";
     public static final String ENCABEZADO_CONEXIONES = "Estacion_Origen,Estacion_Destino,Tiempo_Traslado_Min";
 
-    /**
-     * @param linea línea cruda
-     * @return true si es vacía, comentario o encabezado
-     */
+    /** Motivo del último error de parseo. */
+    public String error = "";
+
+    /** @return true si la línea es vacía, comentario o encabezado */
     public boolean esIgnorable(String linea) {
-        int inicio = 0;
-        int fin = linea.length() - 1;
-        while (inicio <= fin && esBlanco(linea.charAt(inicio))) {
-            inicio++;
-        }
-        while (fin >= inicio && esBlanco(linea.charAt(fin))) {
-            fin--;
-        }
-        if (inicio > fin || linea.charAt(inicio) == '#') {
+        String limpia = linea.trim();
+        if (limpia.length() == 0 || limpia.charAt(0) == '#') {
             return true;
         }
-        return coincide(linea, inicio, fin, ENCABEZADO_ESTACIONES)
-                || coincide(linea, inicio, fin, ENCABEZADO_CONEXIONES);
-    }
-
-    private boolean esBlanco(char c) {
-        return c == ' ' || c == '\t' || c == '\r' || c == '\n';
-    }
-
-    /** Compara linea[inicio..fin] con patron ignorando mayúsculas/minúsculas (ASCII), con un ciclo. */
-    private boolean coincide(String linea, int inicio, int fin, String patron) {
-        if (fin - inicio + 1 != patron.length()) {
-            return false;
+        if (limpia.equalsIgnoreCase(ENCABEZADO_ESTACIONES) || limpia.equalsIgnoreCase(ENCABEZADO_CONEXIONES)) {
+            return true;
         }
-        for (int i = 0; i < patron.length(); i++) {
-            if (aMinuscula(linea.charAt(inicio + i)) != aMinuscula(patron.charAt(i))) {
-                return false;
-            }
-        }
-        return true;
+        return false;
     }
 
-    private char aMinuscula(char c) {
-        return (c >= 'A' && c <= 'Z') ? (char) (c + 32) : c;
-    }
-
-    /**
-     * @param linea línea cruda
-     * @return true si tiene 5 campos (estación)
-     */
+    /** @return true si la línea tiene 5 campos (estación) */
     public boolean esEstacion(String linea) {
         return dividir(linea).length == 5;
     }
 
-    /**
-     * @param linea línea cruda
-     * @return true si tiene 3 campos (conexión)
-     */
+    /** @return true si la línea tiene 3 campos (conexión) */
     public boolean esConexion(String linea) {
         return dividir(linea).length == 3;
     }
 
     /**
      * @param linea ID,Nombre,Linea,Zona,Capacidad
-     * @return estación instanciada
-     * @throws IllegalArgumentException si la línea es inválida
+     * @return estación instanciada, o null si la línea es inválida
      */
     public Estacion parsearEstacion(String linea) {
         String[] c = dividir(linea);
         if (c.length != 5) {
-            throw new IllegalArgumentException("Estación: se esperaban 5 campos -> " + linea);
+            error = "Estación: se esperaban 5 campos -> " + linea;
+            return null;
         }
-        validarNoVacios(c, linea);
-        int capacidad;
-        try {
-            capacidad = Integer.parseInt(c[4]);
-        } catch (NumberFormatException ex) {
-            throw new IllegalArgumentException("Capacidad no numérica -> " + linea);
+        if (hayVacios(c)) {
+            error = "Campo vacío -> " + linea;
+            return null;
         }
-        if (capacidad < 0) {
-            throw new IllegalArgumentException("Capacidad negativa -> " + linea);
+        int capacidad = aEntero(c[4]);
+        if (capacidad == -1) {
+            error = "Capacidad no numérica o negativa -> " + linea;
+            return null;
         }
         return new Estacion(c[0], c[1], c[2], c[3], capacidad);
     }
@@ -105,57 +72,114 @@ public class ParserCSV {
      * Crea una Arista con estaciones provisionales (solo ID); el Grafo resuelve las reales.
      *
      * @param linea Origen,Destino,Tiempo
-     * @return arista instanciada
-     * @throws IllegalArgumentException si la línea es inválida
+     * @return arista instanciada, o null si la línea es inválida
      */
     public Arista parsearArista(String linea) {
         String[] c = dividir(linea);
         if (c.length != 3) {
-            throw new IllegalArgumentException("Conexión: se esperaban 3 campos -> " + linea);
+            error = "Conexión: se esperaban 3 campos -> " + linea;
+            return null;
         }
-        validarNoVacios(c, linea);
-        double tiempo;
-        try {
-            tiempo = Double.parseDouble(c[2]);
-        } catch (NumberFormatException ex) {
-            throw new IllegalArgumentException("Tiempo no numérico -> " + linea);
+        if (hayVacios(c)) {
+            error = "Campo vacío -> " + linea;
+            return null;
         }
-        return new Arista(new Estacion(c[0]), new Estacion(c[1]), tiempo);
+        double tiempo = aDecimal(c[2]);
+        if (tiempo == -1) {
+            error = "Tiempo no numérico o negativo -> " + linea;
+            return null;
+        }
+        Estacion origen = new Estacion(c[0], c[0], "", "", 0);
+        Estacion destino = new Estacion(c[1], c[1], "", "", 0);
+        return new Arista(origen, destino, tiempo);
     }
 
-    /**
-     * @param e estación
-     * @return línea CSV de la estación
-     */
+    /** @return línea CSV de la estación */
     public String formatearEstacion(Estacion e) {
         return e.getIdEstacion() + SEPARADOR + e.getNombre() + SEPARADOR + e.getLinea()
                 + SEPARADOR + e.getZona() + SEPARADOR + e.getCapacidadPasajerosHora();
     }
 
-    /**
-     * @param a arista
-     * @return línea CSV de la conexión
-     */
+    /** @return línea CSV de la conexión (sin ".0" si el tiempo es entero) */
     public String formatearArista(Arista a) {
         double t = a.getTiempoMinutos();
-        String tiempo = (t == Math.floor(t)) ? String.valueOf((long) t) : String.valueOf(t);
+        String tiempo;
+        if (t == (int) t) {
+            tiempo = "" + (int) t;
+        } else {
+            tiempo = "" + t;
+        }
         return a.getOrigen().getIdEstacion() + SEPARADOR + a.getDestino().getIdEstacion() + SEPARADOR + tiempo;
     }
 
+
+    /** Separa la línea por comas y quita los espacios de cada campo. */
     private String[] dividir(String linea) {
         String[] campos = linea.split(SEPARADOR, -1);
-        for (int i = 0; i < campos.length; i++) {
+        int i = 0;
+        while (i < campos.length) {
             campos[i] = campos[i].trim();
+            i++;
         }
         return campos;
     }
 
-    private void validarNoVacios(String[] campos, String linea) {
-        for (String c : campos) {
-            if (c.isEmpty()) {
-                throw new IllegalArgumentException("Campo vacío -> " + linea);
+    private boolean hayVacios(String[] campos) {
+        int i = 0;
+        while (i < campos.length) {
+            if (campos[i].length() == 0) {
+                return true;
             }
+            i++;
         }
+        return false;
+    }
+
+    /** @return el entero (>= 0) o -1 si el texto no es un número entero válido */
+    private int aEntero(String s) {
+        int n = 0;
+        int i = 0;
+        while (i < s.length()) {
+            char c = s.charAt(i);
+            if (c < '0' || c > '9') {
+                return -1;
+            }
+            n = n * 10 + (c - '0');
+            i++;
+        }
+        return n;
+    }
+
+    /** @return el decimal (>= 0) o -1 si el texto no es un número válido*/
+    private double aDecimal(String s) {
+        double n = 0;
+        double factor = 1;
+        boolean hayPunto = false;
+        boolean hayDigito = false;
+        int i = 0;
+        while (i < s.length()) {
+            char c = s.charAt(i);
+            if (c == '.') {
+                if (hayPunto) {
+                    return -1;
+                }
+                hayPunto = true;
+            } else if (c >= '0' && c <= '9') {
+                hayDigito = true;
+                if (hayPunto) {
+                    factor = factor / 10;
+                    n = n + (c - '0') * factor;
+                } else {
+                    n = n * 10 + (c - '0');
+                }
+            } else {
+                return -1;
+            }
+            i++;
+        }
+        if (!hayDigito) {
+            return -1;
+        }
+        return n;
     }
 }
-

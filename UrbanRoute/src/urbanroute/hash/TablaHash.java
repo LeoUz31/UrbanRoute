@@ -5,6 +5,8 @@
 package urbanroute.hash;
 
 import urbanroute.dominio.Estacion;
+import urbanroute.estructuras.ListaEnlazada;
+import urbanroute.estructuras.Nodo;
 
 /**
  *
@@ -15,39 +17,92 @@ import urbanroute.dominio.Estacion;
 
 public class TablaHash {
 
-    private static final int CAPACIDAD_INICIAL = 31;
+    /** Cantidad de cubetas (no limita la cantidad de estaciones). */
+    public static final int CUBETAS = 31;
 
-    private NodoHash[] cubetas;
-    private int capacidad;
+    private ListaEnlazada<ListaEnlazada<Estacion>> cubetas;
     private int elementosTotales;
-    private final double factorCargaLimite;
-    private final CalculadorHash calculador;
+    private CalculadorHash calculador;
 
-    
-    
-    /** Crea una tabla con capacidad prima inicial y factor de carga 0.75. */
     public TablaHash() {
-        this(CAPACIDAD_INICIAL, 0.75);
-    }
-    
-        /**
-     * @param capacidadInicial  capacidad inicial (se ajusta al primo siguiente)
-     * @param factorCargaLimite límite que dispara el rehash
-     */
-    public TablaHash(int capacidadInicial, double factorCargaLimite) {
-        this.capacidad = siguientePrimo(Math.max(2, capacidadInicial));
-        this.cubetas = new NodoHash[capacidad];
-        this.factorCargaLimite = factorCargaLimite;
+        this.cubetas = new ListaEnlazada<>();
+        int i = 0;
+        while (i < CUBETAS) {
+            cubetas.insertarAlFinal(new ListaEnlazada<Estacion>());
+            i++;
+        }
         this.calculador = new CalculadorHash();
         this.elementosTotales = 0;
     }
-    
-    public Estacion buscar(String clave) {
-        int i = calculador.calcularIndice(clave, capacidad);
-        for (NodoHash n = cubetas[i]; n != null; n = n.getSiguiente()) {
-            if (n.getClave().equals(clave)) {
-                return n.getValor();
+
+    /** Inserta la estación; si la clave ya existe, reemplaza su valor. */
+    public void insertar(String clave, Estacion estacion) {
+        ListaEnlazada<Estacion> cubeta = cubetas.acceder(calculador.calcularIndice(clave, CUBETAS));
+        Nodo<Estacion> n = cubeta.getCabeza();
+        while (n != null) {
+            if (n.getDato().getIdEstacion().equals(clave)) {
+                n.setDato(estacion);
+                return;
             }
+            n = n.getSiguiente();
+        }
+        cubeta.insertarAlFinal(estacion);
+        elementosTotales++;
+    }
+
+    /** @return estación o null si no existe */
+    public Estacion buscar(String clave) {
+        ListaEnlazada<Estacion> cubeta = cubetas.acceder(calculador.calcularIndice(clave, CUBETAS));
+        Nodo<Estacion> n = cubeta.getCabeza();
+        while (n != null) {
+            if (n.getDato().getIdEstacion().equals(clave)) {
+                return n.getDato();
+            }
+            n = n.getSiguiente();
         }
         return null;
     }
+
+    public boolean contiene(String clave) {
+        return buscar(clave) != null;
+    }
+
+    /** @return estación eliminada o null si no existía */
+    public Estacion eliminar(String clave) {
+        Estacion e = buscar(clave);
+        if (e != null) {
+            cubetas.acceder(calculador.calcularIndice(clave, CUBETAS)).eliminar(e);
+            elementosTotales--;
+        }
+        return e;
+    }
+
+    /** @return lista nueva con todas las estaciones almacenadas */
+    public ListaEnlazada<Estacion> obtenerTodas() {
+        ListaEnlazada<Estacion> todas = new ListaEnlazada<>();
+        Nodo<ListaEnlazada<Estacion>> c = cubetas.getCabeza();
+        while (c != null) {
+            Nodo<Estacion> n = c.getDato().getCabeza();
+            while (n != null) {
+                todas.insertarAlFinal(n.getDato());
+                n = n.getSiguiente();
+            }
+            c = c.getSiguiente();
+        }
+        return todas;
+    }
+
+    /** Vacía todas las cubetas. */
+    public void limpiar() {
+        Nodo<ListaEnlazada<Estacion>> c = cubetas.getCabeza();
+        while (c != null) {
+            c.getDato().vaciar();
+            c = c.getSiguiente();
+        }
+        elementosTotales = 0;
+    }
+
+    public int size() {
+        return elementosTotales;
+    }
+}

@@ -20,28 +20,12 @@ public class Estacion {
     private String zona;
     private int capacidadPasajerosHora;
 
-    /**
-     * @param idEstacion             identificador único
-     * @param nombre                 nombre visible
-     * @param linea                  línea a la que pertenece
-     * @param zona                   zona tarifaria/geográfica
-     * @param capacidadPasajerosHora capacidad de pasajeros por hora
-     */
     public Estacion(String idEstacion, String nombre, String linea, String zona, int capacidadPasajerosHora) {
         this.idEstacion = idEstacion;
         this.nombre = nombre;
         this.linea = linea;
         this.zona = zona;
         this.capacidadPasajerosHora = capacidadPasajerosHora;
-    }
-
-    /**
-     * Crea una estación solo con su ID (datos restantes vacíos).
-     *
-     * @param idEstacion identificador
-     */
-    public Estacion(String idEstacion) {
-        this(idEstacion, idEstacion, "", "", 0);
     }
 
     public String getIdEstacion() { return idEstacion; }
@@ -55,25 +39,7 @@ public class Estacion {
     public int getCapacidadPasajerosHora() { return capacidadPasajerosHora; }
     public void setCapacidadPasajerosHora(int capacidadPasajerosHora) { this.capacidadPasajerosHora = capacidadPasajerosHora; }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Estacion)) {
-            return false;
-        }
-        Estacion otra = (Estacion) o;
-        return idEstacion == null ? otra.idEstacion == null : idEstacion.equals(otra.idEstacion);
-    }
-
-    @Override
-    public int hashCode() {
-        return idEstacion == null ? 0 : idEstacion.hashCode();
-    }
-
-    @Override
-    public String toString() {
+    public String imprimir() {
         return nombre + " (" + idEstacion + ")";
     }
 }

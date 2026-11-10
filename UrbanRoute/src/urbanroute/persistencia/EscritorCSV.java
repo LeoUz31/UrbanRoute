@@ -7,11 +7,13 @@ package urbanroute.persistencia;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import urbanroute.dominio.Estacion;
-import urbanroute.estructuras.Arreglo;
+import urbanroute.estructuras.ListaEnlazada;
+import urbanroute.estructuras.Nodo;
 import urbanroute.grafo.Arista;
 import urbanroute.grafo.Grafo;
 import urbanroute.hash.TablaHash;
@@ -24,7 +26,7 @@ import urbanroute.hash.TablaHash;
  */
 public class EscritorCSV {
 
-    private final ParserCSV parser;
+    private ParserCSV parser;
 
     /** @param parser parser usado para formatear */
     public EscritorCSV(ParserCSV parser) {
@@ -38,29 +40,30 @@ public class EscritorCSV {
      * @throws IOException si ocurre un error de escritura
      */
     public void guardar(File archivo, TablaHash tablaHash, Grafo grafo) throws IOException {
-        try (BufferedWriter bw = new BufferedWriter(
-                new OutputStreamWriter(new FileOutputStream(archivo), StandardCharsets.UTF_8))) {
-            bw.write(ParserCSV.SECCION_ESTACIONES);
-            bw.newLine();
-            bw.write(ParserCSV.ENCABEZADO_ESTACIONES);
-            bw.newLine();
-            Arreglo<Estacion> estaciones = grafo.getVertices();
-            for (int i = 0; i < estaciones.size(); i++) {
-                Estacion e = tablaHash.buscar(estaciones.obtener(i).getIdEstacion());
-                if (e != null) {
-                    bw.write(parser.formatearEstacion(e));
-                    bw.newLine();
-                }
-            }
-            bw.write(ParserCSV.SECCION_CONEXIONES);
-            bw.newLine();
-            bw.write(ParserCSV.ENCABEZADO_CONEXIONES);
-            bw.newLine();
-            Arreglo<Arista> aristas = grafo.obtenerAristasUnicas();
-            for (int i = 0; i < aristas.size(); i++) {
-                bw.write(parser.formatearArista(aristas.obtener(i)));
+        BufferedWriter bw = new BufferedWriter(new FileWriter(archivo));
+        bw.write(ParserCSV.SECCION_ESTACIONES);
+        bw.newLine();
+        bw.write(ParserCSV.ENCABEZADO_ESTACIONES);
+        bw.newLine();
+        Nodo<Estacion> n = grafo.getVertices().getCabeza();
+        while (n != null) {
+            Estacion e = tablaHash.buscar(n.getDato().getIdEstacion());
+            if (e != null) {
+                bw.write(parser.formatearEstacion(e));
                 bw.newLine();
             }
+            n = n.getSiguiente();
         }
+        bw.write(ParserCSV.SECCION_CONEXIONES);
+        bw.newLine();
+        bw.write(ParserCSV.ENCABEZADO_CONEXIONES);
+        bw.newLine();
+        Nodo<Arista> a = grafo.obtenerAristasUnicas().getCabeza();
+        while (a != null) {
+            bw.write(parser.formatearArista(a.getDato()));
+            bw.newLine();
+            a = a.getSiguiente();
+        }
+        bw.close();
     }
 }

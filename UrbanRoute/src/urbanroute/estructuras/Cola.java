@@ -12,43 +12,23 @@ package urbanroute.estructuras;
  * @param <T> tipo de elemento
  * TDA Cola FIFO con nodos enlazados (usada por BFS).
  */
-public class Cola {
-    public int Max, cantidad;
-    int[] items;
+public class Cola<T> {
+    private ListaEnlazada<T> items;
 
-    public Cola(int tam){
-        this.Max=tam;
-        this.cantidad=0;
-        this.items=new int[this.Max];
+    public Cola() {
+        this.items = new ListaEnlazada<>();
     }
 
-    public boolean esta_vacia(){
-        return this.cantidad==0;
+    public boolean esta_vacia() {
+        return items.estaVacia();
     }
 
-    public void encolar(int item){
-        if (this.cantidad<this.Max){
-            this.items[this.cantidad]=item;
-            this.cantidad++;
-        }else{
-            System.out.print("error");
-        }
+    public void encolar(T item) {
+        items.insertarAlFinal(item);
     }
 
-    // La posicion equivalente a NULL es en este caso -1.
-    public int desencolar(){
-        int item, indice;
-        if (!this.esta_vacia()){
-            item=this.items[0];
-            indice=0;
-            while (indice<this.cantidad-1){
-                this.items[indice]=this.items[indice+1];
-                indice++;
-            }
-            this.cantidad--;
-            return item;
-        }else{
-            return -1;
-        }
+    /** @return primer elemento, o null si la cola está vacía */
+    public T desencolar() {
+        return items.eliminarPrimero();
     }
 }

@@ -13,8 +13,8 @@ import urbanroute.dominio.Estacion;
  */
 public class Arista {
 
-    private final Estacion origen;
-    private final Estacion destino;
+    private Estacion origen;
+    private Estacion destino;
     private double tiempoMinutos;
 
     /**

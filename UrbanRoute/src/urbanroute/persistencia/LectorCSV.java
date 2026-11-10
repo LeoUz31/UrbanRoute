@@ -8,12 +8,13 @@ import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import urbanroute.estructuras.Arreglo;
+import urbanroute.estructuras.ListaEnlazada;
 
 /**
  *
@@ -23,7 +24,7 @@ import urbanroute.estructuras.Arreglo;
  */
 public class LectorCSV {
 
-    private final ParserCSV parser;
+    private ParserCSV parser;
 
     /** @param parser parser asociado */
     public LectorCSV(ParserCSV parser) {
@@ -52,23 +53,12 @@ public class LectorCSV {
      * @return líneas leídas
      * @throws IOException si ocurre un error de lectura
      */
-    public Arreglo<String> leer(File archivo) throws IOException {
-        // Primera pasada: contar las líneas para fijar el máximo del arreglo.
-        int total = 0;
-        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(archivo), "UTF-8"));
+    public ListaEnlazada<String> leer(File archivo) throws IOException {
+        ListaEnlazada<String> lineas = new ListaEnlazada<>();
+        BufferedReader br = new BufferedReader(new FileReader(archivo));
         String linea = br.readLine();
         while (linea != null) {
-            total++;
-            linea = br.readLine();
-        }
-        br.close();
-
-        // Segunda pasada: guardar las líneas.
-        Arreglo<String> lineas = new Arreglo<>(total);
-        br = new BufferedReader(new InputStreamReader(new FileInputStream(archivo), "UTF-8"));
-        linea = br.readLine();
-        while (linea != null) {
-            lineas.agregar(linea);
+            lineas.insertarAlFinal(linea);
             linea = br.readLine();
         }
         br.close();

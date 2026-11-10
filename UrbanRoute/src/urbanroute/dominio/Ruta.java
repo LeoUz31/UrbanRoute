@@ -6,7 +6,8 @@ package urbanroute.dominio;
  */
 
 
-import urbanroute.estructuras.Arreglo;
+import urbanroute.estructuras.ListaEnlazada;
+import urbanroute.estructuras.Nodo;
 /**
  *
  * @author leo.uzgil@gmail.com
@@ -14,53 +15,49 @@ import urbanroute.estructuras.Arreglo;
  */
 public class Ruta {
 
-    private final Arreglo<Estacion> estaciones;
+    private ListaEnlazada<Estacion> estaciones;
     private double tiempoTotalMinutos;
 
-    /** @param maxEstaciones máximo de estaciones del trayecto (fijo) */
-    public Ruta(int maxEstaciones) {
-        estaciones = new Arreglo<>(maxEstaciones);
+    public Ruta() {
+        estaciones = new ListaEnlazada<>();
         tiempoTotalMinutos = 0;
     }
 
-    /**
-     * @param estacion estación a añadir al final del trayecto
-     */
+    /** @param estacion estación a añadir al final del trayecto */
     public void agregarEstacion(Estacion estacion) {
-        estaciones.agregar(estacion);
+        estaciones.insertarAlFinal(estacion);
     }
 
     /** @return estaciones en orden de recorrido */
-    public Arreglo<Estacion> getEstaciones() {
+    public ListaEnlazada<Estacion> getEstaciones() {
         return estaciones;
     }
 
-    /** @return tiempo total en minutos */
     public double getTiempoTotalMinutos() {
         return tiempoTotalMinutos;
     }
 
-    /** @param tiempoTotalMinutos tiempo total en minutos */
     public void setTiempoTotalMinutos(double tiempoTotalMinutos) {
         this.tiempoTotalMinutos = tiempoTotalMinutos;
     }
 
     /** @return true si la ruta no tiene estaciones (destino inalcanzable) */
     public boolean esVacia() {
-        return estaciones.estaVacio();
+        return estaciones.estaVacia();
     }
 
     public String imprimir() {
-        String texto;
         if (esVacia()) {
             return "Ruta inexistente";
         }
-        texto = "";
-        for (int i = 0; i < estaciones.size(); i++) {
-            if (i > 0) {
+        String texto = "";
+        Nodo<Estacion> n = estaciones.getCabeza();
+        while (n != null) {
+            if (n != estaciones.getCabeza()) {
                 texto = texto + " -> ";
             }
-            texto = texto + estaciones.obtener(i).getNombre();
+            texto = texto + n.getDato().getNombre();
+            n = n.getSiguiente();
         }
         texto = texto + " [" + tiempoTotalMinutos + " min]";
         return texto;
