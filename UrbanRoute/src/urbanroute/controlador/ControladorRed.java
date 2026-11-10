@@ -173,6 +173,7 @@ public class ControladorRed {
     }
 
     /** @return ruta óptima en una red simulada (vacía si no existe) */
+    //Dijkstra no implementado
     public Ruta calcularRutaSimulada(Grafo red, String idOrigen, String idDestino) {
         return new CalculadorDijkstra(red).calcularRuta(idOrigen, idDestino);
     }
