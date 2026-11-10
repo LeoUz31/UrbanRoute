@@ -13,8 +13,6 @@ import urbanroute.hash.TablaHash;
  *
  * @author leo.uzgil@gmail.com
  * Topología física de la red (no dirigida) con lista de adyacencia.
- * Sin lógica analítica. Mantiene sincronizada la TablaHash de estaciones.
- * Los errores son causados pq la clase TablaHash no ha sido terminada.
  */
 public class Grafo {
 
