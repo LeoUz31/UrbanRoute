@@ -11,7 +11,7 @@ import urbanroute.estructuras.Nodo;
 /**
  *
  * @author leo.uzgil@gmail.com
- * Tabla hash con encadenamiento para indexar estaciones por ID en O(1) promedio.
+ * Tabla hash con encadenamiento para indexar estaciones por ID
  * Pendiente los siguientes metodos: obtenerTodas(), limpiar(), 
  */
 
