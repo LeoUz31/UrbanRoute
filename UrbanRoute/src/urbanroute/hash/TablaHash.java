@@ -18,6 +18,7 @@ import urbanroute.estructuras.Nodo;
 public class TablaHash {
 
     /** Cantidad de cubetas (no limita la cantidad de estaciones). */
+    // Número 31 es primo, elegir este o 37.
     public static final int CUBETAS = 31;
 
     private ListaEnlazada<ListaEnlazada<Estacion>> cubetas;
