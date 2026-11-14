@@ -7,12 +7,9 @@ package urbanroute.persistencia;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
 import urbanroute.dominio.Estacion;
-import urbanroute.estructuras.ListaEnlazada;
 import urbanroute.estructuras.Nodo;
 import urbanroute.grafo.Arista;
 import urbanroute.grafo.Grafo;
@@ -34,15 +31,26 @@ public class EscritorCSV {
     }
 
     /**
-     * @param archivo   destino (se sobrescribe)
-     * @param tablaHash estaciones
-     * @param grafo     conexiones
+     * Guarda estaciones y conexiones en sus archivos (ambos se sobrescriben).
+     *
+     * @param diccionario destino de las estaciones
+     * @param conexiones  destino de las conexiones
+     * @param tablaHash   estaciones
+     * @param grafo       conexiones
      * @throws IOException si ocurre un error de escritura
      */
-    public void guardar(File archivo, TablaHash tablaHash, Grafo grafo) throws IOException {
-        BufferedWriter bw = new BufferedWriter(new FileWriter(archivo));
-        bw.write(ParserCSV.SECCION_ESTACIONES);
-        bw.newLine();
+    public void guardar(File diccionario, File conexiones, TablaHash tablaHash, Grafo grafo) throws IOException {
+        guardarDiccionario(diccionario, tablaHash, grafo);
+        guardarConexiones(conexiones, grafo);
+    }
+
+    /**
+     * Escribe el diccionario de estaciones en el orden de los vértices del grafo.
+     *
+     * @throws IOException si ocurre un error de escritura
+     */
+    private void guardarDiccionario(File archivo, TablaHash tablaHash, Grafo grafo) throws IOException {
+        BufferedWriter bw = abrir(archivo);
         bw.write(ParserCSV.ENCABEZADO_ESTACIONES);
         bw.newLine();
         Nodo<Estacion> n = grafo.getVertices().getCabeza();
@@ -54,8 +62,16 @@ public class EscritorCSV {
             }
             n = n.getSiguiente();
         }
-        bw.write(ParserCSV.SECCION_CONEXIONES);
-        bw.newLine();
+        bw.close();
+    }
+
+    /**
+     * Escribe las conexiones (una vez cada conexión no dirigida).
+     *
+     * @throws IOException si ocurre un error de escritura
+     */
+    private void guardarConexiones(File archivo, Grafo grafo) throws IOException {
+        BufferedWriter bw = abrir(archivo);
         bw.write(ParserCSV.ENCABEZADO_CONEXIONES);
         bw.newLine();
         Nodo<Arista> a = grafo.obtenerAristasUnicas().getCabeza();
@@ -65,5 +81,10 @@ public class EscritorCSV {
             a = a.getSiguiente();
         }
         bw.close();
+    }
+
+    /** @return escritor UTF-8 sobre el archivo (lo sobrescribe) */
+    private BufferedWriter abrir(File archivo) throws IOException {
+        return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(archivo), LectorCSV.CODIFICACION));
     }
 }

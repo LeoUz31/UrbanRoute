@@ -16,10 +16,12 @@ import urbanroute.grafo.Arista;
 public class ParserCSV {
 
     public static final String SEPARADOR = ",";
-    public static final String SECCION_ESTACIONES = "#ESTACIONES";
-    public static final String SECCION_CONEXIONES = "#CONEXIONES";
+    /** Encabezado del archivo diccionario (enunciado). */
     public static final String ENCABEZADO_ESTACIONES = "ID_Estacion,Nombre,Linea,Zona,Capacidad_Pasajeros_Hora";
-    public static final String ENCABEZADO_CONEXIONES = "Estacion_Origen,Estacion_Destino,Tiempo_Traslado_Min";
+    /** Encabezado del archivo de conexiones (enunciado). */
+    public static final String ENCABEZADO_CONEXIONES = "Estacion_Origen,Estacion_Destino,Tiempo_Minutos";
+    /** Encabezado de conexiones de versiones anteriores (se sigue aceptando al leer). */
+    public static final String ENCABEZADO_CONEXIONES_ANTERIOR = "Estacion_Origen,Estacion_Destino,Tiempo_Traslado_Min";
 
     /** Motivo del último error de parseo. */
     public String error = "";
@@ -30,7 +32,8 @@ public class ParserCSV {
         if (limpia.length() == 0 || limpia.charAt(0) == '#') {
             return true;
         }
-        if (limpia.equalsIgnoreCase(ENCABEZADO_ESTACIONES) || limpia.equalsIgnoreCase(ENCABEZADO_CONEXIONES)) {
+        if (limpia.equalsIgnoreCase(ENCABEZADO_ESTACIONES) || limpia.equalsIgnoreCase(ENCABEZADO_CONEXIONES)
+                || limpia.equalsIgnoreCase(ENCABEZADO_CONEXIONES_ANTERIOR)) {
             return true;
         }
         return false;
@@ -136,7 +139,7 @@ public class ParserCSV {
     }
 
     /** @return el entero (>= 0) o -1 si el texto no es un número entero válido */
-    private int aEntero(String s) {
+    public int aEntero(String s) {
         int n = 0;
         int i = 0;
         while (i < s.length()) {
@@ -151,7 +154,7 @@ public class ParserCSV {
     }
 
     /** @return el decimal (>= 0) o -1 si el texto no es un número válido*/
-    private double aDecimal(String s) {
+    public double aDecimal(String s) {
         double n = 0;
         double factor = 1;
         boolean hayPunto = false;

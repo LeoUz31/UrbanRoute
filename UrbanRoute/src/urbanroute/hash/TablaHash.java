@@ -49,7 +49,6 @@ public class TablaHash {
         cubeta.insertarAlFinal(estacion);
         elementosTotales++;
     }
-
     /** @return estación o null si no existe */
     public Estacion buscar(String clave) {
         ListaEnlazada<Estacion> cubeta = cubetas.acceder(calculador.calcularIndice(clave, CUBETAS));

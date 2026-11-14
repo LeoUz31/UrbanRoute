@@ -37,7 +37,19 @@ public class ControladorRed {
     private ParserCSV parser;
     private LectorCSV lector;
     private EscritorCSV escritor;
-    private File archivoActual;
+    /** Archivo del diccionario de estaciones cargado (null si la red es nueva). */
+    private File archivoDiccionario;
+    /** Archivo de conexiones del grafo cargado (null si la red es nueva). */
+    private File archivoConexiones;
+
+    /** BFS de la red real; guarda su último resultado mientras la red no cambie. */
+    private AnalizadorRedes analizadorReal;
+    /** Copia de la red con los cierres aplicados (null = sin simulación). */
+    private Grafo redSimulada;
+    /** BFS de la red simulada (null = sin simulación). */
+    private AnalizadorRedes analizadorSimulado;
+    /** Estaciones cerradas en la simulación actual. */
+    private ListaEnlazada<Estacion> cerradas;
 
     /** Crea un controlador con una red vacía (sin máximo de estaciones). */
     public ControladorRed() {
@@ -47,93 +59,122 @@ public class ControladorRed {
         this.lector = new LectorCSV(parser);
         this.escritor = new EscritorCSV(parser);
         this.cambiosPendientes = false;
+        this.analizadorReal = new AnalizadorRedes(grafo);
+        restablecerSimulacion();
     }
 
     // ---------------------------------------------------------------- Persistencia
 
     /**
-     * Carga la red desde un CSV (reemplaza la actual). Las líneas inválidas no abortan la carga.
-     * Estaciones referenciadas en conexiones y no declaradas se crean solo con su ID.
+     * Carga la red desde los dos archivos del dataset (reemplaza la actual):
+     * primero el diccionario (estaciones → TablaHash y vértices) y luego las conexiones (aristas).
+     * Ambos archivos se leen antes de tocar la red: si uno falla, la red actual se conserva.
+     * Las líneas inválidas no abortan la carga; una conexión que nombra un ID que no está
+     * en el diccionario se reporta como error (no se crean estaciones incompletas).
      *
+     * @param diccionario archivo de estaciones (ID_Estacion,Nombre,Linea,Zona,Capacidad)
+     * @param conexiones  archivo de conexiones (Origen,Destino,Tiempo_Minutos)
      * @return mensajes de error por línea inválida (vacío si todo OK)
-     * @throws IOException si no se puede leer el archivo
+     * @throws IOException si no se puede leer alguno de los archivos
      */
-    public ListaEnlazada<String> cargarRed(File archivo) throws IOException {
-        ListaEnlazada<String> lineas = lector.leer(archivo);
+    public ListaEnlazada<String> cargarRed(File diccionario, File conexiones) throws IOException {
+        ListaEnlazada<String> lineasEstaciones = lector.leer(diccionario);
+        ListaEnlazada<String> lineasConexiones = lector.leer(conexiones);
         ListaEnlazada<String> errores = new ListaEnlazada<>();
-        ListaEnlazada<Arista> conexiones = new ListaEnlazada<>();
+        restablecerSimulacion();
         grafo.limpiar();
-
-        int i = 0;
-        Nodo<String> nodoLinea = lineas.getCabeza();
-        while (nodoLinea != null) {
-            String linea = nodoLinea.getDato();
-            if (!parser.esIgnorable(linea)) {
-                if (parser.esEstacion(linea)) {
-                    Estacion e = parser.parsearEstacion(linea);
-                    if (e == null) {
-                        errores.insertarAlFinal("Línea " + (i + 1) + ": " + parser.error);
-                    } else if (!grafo.agregarEstacion(e)) {
-                        errores.insertarAlFinal("Línea " + (i + 1) + ": ID repetido");
-                    }
-                } else if (parser.esConexion(linea)) {
-                    Arista a = parser.parsearArista(linea);
-                    if (a == null) {
-                        errores.insertarAlFinal("Línea " + (i + 1) + ": " + parser.error);
-                    } else {
-                        conexiones.insertarAlFinal(a);
-                    }
-                } else {
-                    errores.insertarAlFinal("Línea " + (i + 1) + ": formato desconocido -> " + linea);
-                }
-            }
-            nodoLinea = nodoLinea.getSiguiente();
-            i++;
-        }
-
-        Nodo<Arista> nodoConexion = conexiones.getCabeza();
-        while (nodoConexion != null) {
-            Arista a = nodoConexion.getDato();
-            agregarSiNoExiste(a.getOrigen().getIdEstacion());
-            agregarSiNoExiste(a.getDestino().getIdEstacion());
-            if (!grafo.agregarArista(a.getOrigen().getIdEstacion(), a.getDestino().getIdEstacion(), a.getTiempoMinutos())) {
-                errores.insertarAlFinal("Conexión " + a.imprimir() + ": lazo o tiempo no positivo");
-            }
-            nodoConexion = nodoConexion.getSiguiente();
-        }
-        archivoActual = archivo;
+        cargarEstaciones(lineasEstaciones, diccionario.getName(), errores);
+        cargarConexiones(lineasConexiones, conexiones.getName(), errores);
+        archivoDiccionario = diccionario;
+        archivoConexiones = conexiones;
         cambiosPendientes = false;
         return errores;
     }
 
     /**
-     * Guarda la red en el archivo cargado.
+     * Guarda la red en los archivos cargados (formato original de cada uno).
      *
-     * @return false si no hay archivo asociado (usar guardarRedComo)
+     * @return false si no hay archivos asociados (usar guardarRedComo)
      * @throws IOException si falla la escritura
      */
     public boolean guardarRed() throws IOException {
-        if (archivoActual == null) {
+        if (archivoDiccionario == null || archivoConexiones == null) {
             return false;
         }
-        guardarRedComo(archivoActual);
+        guardarRedComo(archivoDiccionario, archivoConexiones);
         return true;
     }
 
-    /** @throws IOException si falla la escritura */
-    public void guardarRedComo(File archivo) throws IOException {
-        escritor.guardar(archivo, tablaHash, grafo);
-        archivoActual = archivo;
+    /**
+     * Guarda la red en dos archivos nuevos y los deja como archivos actuales.
+     *
+     * @param diccionario destino de las estaciones
+     * @param conexiones  destino de las conexiones
+     * @throws IOException si falla la escritura
+     */
+    public void guardarRedComo(File diccionario, File conexiones) throws IOException {
+        escritor.guardar(diccionario, conexiones, tablaHash, grafo);
+        archivoDiccionario = diccionario;
+        archivoConexiones = conexiones;
         cambiosPendientes = false;
     }
 
+    /** Agrega al grafo las estaciones del diccionario; acumula los errores por línea. */
+    private void cargarEstaciones(ListaEnlazada<String> lineas, String nombreArchivo, ListaEnlazada<String> errores) {
+        int i = 1;
+        Nodo<String> nodo = lineas.getCabeza();
+        while (nodo != null) {
+            String linea = nodo.getDato();
+            if (!parser.esIgnorable(linea)) {
+                Estacion e = parser.parsearEstacion(linea);
+                if (e == null) {
+                    errores.insertarAlFinal(nombreArchivo + " · Línea " + i + ": " + parser.error);
+                } else if (!grafo.agregarEstacion(e)) {
+                    errores.insertarAlFinal(nombreArchivo + " · Línea " + i + ": ID repetido -> " + linea);
+                }
+            }
+            nodo = nodo.getSiguiente();
+            i++;
+        }
+    }
+
+    /** Agrega al grafo las conexiones; acumula los errores por línea. */
+    private void cargarConexiones(ListaEnlazada<String> lineas, String nombreArchivo, ListaEnlazada<String> errores) {
+        int i = 1;
+        Nodo<String> nodo = lineas.getCabeza();
+        while (nodo != null) {
+            String linea = nodo.getDato();
+            if (!parser.esIgnorable(linea)) {
+                Arista a = parser.parsearArista(linea);
+                String prefijo = nombreArchivo + " · Línea " + i + ": ";
+                if (a == null) {
+                    errores.insertarAlFinal(prefijo + parser.error);
+                } else {
+                    String origen = a.getOrigen().getIdEstacion();
+                    String destino = a.getDestino().getIdEstacion();
+                    if (!grafo.existeEstacion(origen)) {
+                        errores.insertarAlFinal(prefijo + "estación «" + origen + "» no está en el diccionario");
+                    } else if (!grafo.existeEstacion(destino)) {
+                        errores.insertarAlFinal(prefijo + "estación «" + destino + "» no está en el diccionario");
+                    } else if (!grafo.agregarArista(origen, destino, a.getTiempoMinutos())) {
+                        errores.insertarAlFinal(prefijo + "lazo o tiempo no positivo -> " + linea);
+                    }
+                }
+            }
+            nodo = nodo.getSiguiente();
+            i++;
+        }
+    }
+
     // ---------------------------------------------------------------- Edición
+
+    // Toda modificación de la red real descarta la simulación de cierres (deja de ser válida).
 
     /** @return true si se agregó (false si el ID ya existía) */
     public boolean agregarEstacion(Estacion estacion) {
         boolean ok = grafo.agregarEstacion(estacion);
         if (ok) {
-            cambiosPendientes = true;
+            registrarCambio();
         }
         return ok;
     }
@@ -142,7 +183,7 @@ public class ControladorRed {
     public boolean eliminarEstacion(String idEstacion) {
         boolean ok = grafo.eliminarEstacion(idEstacion) != null;
         if (ok) {
-            cambiosPendientes = true;
+            registrarCambio();
         }
         return ok;
     }
@@ -151,7 +192,7 @@ public class ControladorRed {
     public boolean agregarConexion(String idOrigen, String idDestino, double tiempo) {
         boolean ok = grafo.agregarArista(idOrigen, idDestino, tiempo);
         if (ok) {
-            cambiosPendientes = true;
+            registrarCambio();
         }
         return ok;
     }
@@ -160,58 +201,112 @@ public class ControladorRed {
     public boolean eliminarConexion(String idOrigen, String idDestino) {
         boolean ok = grafo.eliminarArista(idOrigen, idDestino);
         if (ok) {
-            cambiosPendientes = true;
+            registrarCambio();
         }
         return ok;
     }
 
+    /** Marca cambios pendientes de guardar y descarta la simulación. */
+    private void registrarCambio() {
+        cambiosPendientes = true;
+        restablecerSimulacion();
+    }
+
     // ---------------------------------------------------------------- Análisis
 
-    /** @return ruta óptima en la red real (vacía si no existe) */
+    /**
+     * Ruta óptima (Dijkstra) en la red activa: la simulada si hay estaciones cerradas,
+     * si no la real.
+     *
+     * @return ruta óptima (vacía si no existe)
+     */
     public Ruta calcularRutaOptima(String idOrigen, String idDestino) {
-        return new CalculadorDijkstra(grafo).calcularRuta(idOrigen, idDestino);
+        return new CalculadorDijkstra(redActiva()).calcularRuta(idOrigen, idDestino);
     }
 
-    /** @return ruta óptima en una red simulada (vacía si no existe) */
-    //Dijkstra no implementado
-    public Ruta calcularRutaSimulada(Grafo red, String idOrigen, String idDestino) {
-        return new CalculadorDijkstra(red).calcularRuta(idOrigen, idDestino);
-    }
-
-    /** @return subredes de la red real */
+    /**
+     * Subredes (BFS) de la red activa. El BFS solo se ejecuta si esa red cambió desde
+     * el último cálculo; si no, se devuelve el resultado guardado en el AnalizadorRedes.
+     *
+     * @return subredes (lista compartida: no modificar)
+     */
     public ListaEnlazada<ListaEnlazada<Estacion>> detectarSubredes() {
-        return new AnalizadorRedes(grafo).obtenerSubredes();
+        if (redSimulada == null) {
+            return analizadorReal.obtenerSubredes();
+        }
+        return analizadorSimulado.obtenerSubredes();
     }
 
-    /** @return subredes de una red simulada */
-    public ListaEnlazada<ListaEnlazada<Estacion>> detectarSubredesSimuladas(Grafo red) {
-        return new AnalizadorRedes(red).obtenerSubredes();
-    }
-
-    /** @return top-k estaciones por grado */
+    /** @return top-k estaciones por grado (red real) */
     public ListaEnlazada<Estacion> obtenerHubs(int k) {
         return new CalculadorCentralidad(grafo).obtenerHubs(k);
     }
 
-    /** Simula el cierre de una estación sin modificar la red real. */
-    public Grafo simularCierreEstacion(String idEstacion) {
-        Grafo copia = grafo.copiar();
-        copia.eliminarEstacion(idEstacion);
-        return copia;
+    // ---------------------------------------------------------------- Simulación de cierres
+
+    /**
+     * Cierra una estación en la simulación (los cierres se acumulan). La red real no cambia:
+     * el primer cierre crea una copia del grafo y su propio AnalizadorRedes.
+     *
+     * @param idEstacion estación a cerrar
+     * @return true si se cerró; false si no existe o ya estaba cerrada
+     */
+    public boolean cerrarEstacionSimulada(String idEstacion) {
+        Estacion e = tablaHash.buscar(idEstacion);
+        if (e == null || cerradas.contiene(e)) {
+            return false;
+        }
+        if (redSimulada == null) {
+            redSimulada = grafo.copiar();
+            analizadorSimulado = new AnalizadorRedes(redSimulada);
+        }
+        redSimulada.eliminarEstacion(idEstacion);
+        cerradas.insertarAlFinal(e);
+        return true;
     }
 
-    /** Simula el cierre de todas las estaciones de una línea sin modificar la red real. */
-    public Grafo simularCierreLinea(String linea) {
-        Grafo copia = grafo.copiar();
+    /**
+     * Cierra en la simulación todas las estaciones de una línea.
+     *
+     * @param linea nombre de la línea (sin distinguir mayúsculas)
+     * @return número de estaciones cerradas
+     */
+    public int cerrarLineaSimulada(String linea) {
+        int total = 0;
         Nodo<Estacion> n = tablaHash.obtenerTodas().getCabeza();
         while (n != null) {
             Estacion e = n.getDato();
-            if (e.getLinea().equalsIgnoreCase(linea)) {
-                copia.eliminarEstacion(e.getIdEstacion());
+            if (e.getLinea().equalsIgnoreCase(linea) && cerrarEstacionSimulada(e.getIdEstacion())) {
+                total++;
             }
             n = n.getSiguiente();
         }
-        return copia;
+        return total;
+    }
+
+    /** Descarta la simulación: vuelven a abrirse todas las estaciones. */
+    public void restablecerSimulacion() {
+        redSimulada = null;
+        analizadorSimulado = null;
+        cerradas = new ListaEnlazada<>();
+    }
+
+    /** @return true si hay al menos una estación cerrada en la simulación */
+    public boolean haySimulacion() {
+        return redSimulada != null;
+    }
+
+    /** @return estaciones cerradas en la simulación (lista compartida: no modificar) */
+    public ListaEnlazada<Estacion> getCerradas() {
+        return cerradas;
+    }
+
+    /** @return la red simulada si existe; si no, la real */
+    private Grafo redActiva() {
+        if (redSimulada == null) {
+            return grafo;
+        }
+        return redSimulada;
     }
 
     // ---------------------------------------------------------------- Estado
@@ -228,11 +323,10 @@ public class ControladorRed {
     public TablaHash getTablaHash() { return tablaHash; }
     public Grafo getGrafo() { return grafo; }
     public LectorCSV getLector() { return lector; }
-    public File getArchivoActual() { return archivoActual; }
 
-    private void agregarSiNoExiste(String id) {
-        if (!grafo.existeEstacion(id)) {
-            grafo.agregarEstacion(new Estacion(id, id, "", "", 0));
-        }
-    }
+    /** @return archivo del diccionario de estaciones (null si no hay) */
+    public File getArchivoDiccionario() { return archivoDiccionario; }
+
+    /** @return archivo de conexiones del grafo (null si no hay) */
+    public File getArchivoConexiones() { return archivoConexiones; }
 }

@@ -1,23 +1,22 @@
 package urbanroute;
 
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
- */
-
+import urbanroute.controlador.ControladorRed;
+import urbanroute.VentanaPrincipal;
 
 /**
- *
- * @author eli_r
- * Clase main del programa
+ * Punto de entrada de UrbanRoute.
+ * Crea el controlador con una red vacía y abre la ventana principal (sin consola).
  */
 public class UrbanRoute {
 
     /**
-     * @param args the command line arguments
+     * Inicia la aplicación.
+     *
+     * @param args argumentos de línea de comandos (no se usan)
      */
     public static void main(String[] args) {
-        // TODO code application logic here
+        ControladorRed controlador = new ControladorRed();
+        VentanaPrincipal ventana = new VentanaPrincipal(controlador);
+        ventana.setVisible(true);
     }
-    
 }
