@@ -28,16 +28,36 @@ public class Estacion {
         this.capacidadPasajerosHora = capacidadPasajerosHora;
     }
 
-    public String getIdEstacion() { return idEstacion; }
-    public void setIdEstacion(String idEstacion) { this.idEstacion = idEstacion; }
-    public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
-    public String getLinea() { return linea; }
-    public void setLinea(String linea) { this.linea = linea; }
-    public String getZona() { return zona; }
-    public void setZona(String zona) { this.zona = zona; }
-    public int getCapacidadPasajerosHora() { return capacidadPasajerosHora; }
-    public void setCapacidadPasajerosHora(int capacidadPasajerosHora) { this.capacidadPasajerosHora = capacidadPasajerosHora; }
+    public String getIdEstacion() { 
+        return idEstacion; 
+    }
+    public void setIdEstacion(String idEstacion) { 
+        this.idEstacion = idEstacion; 
+    }
+    public String getNombre() { 
+        return nombre; 
+    }
+    public void setNombre(String nombre) {
+        this.nombre = nombre; 
+    }
+    public String getLinea() { 
+        return linea; 
+    }
+    public void setLinea(String linea) { 
+        this.linea = linea; 
+    }
+    public String getZona() { 
+        return zona;
+    }
+    public void setZona(String zona) { 
+        this.zona = zona; 
+    }
+    public int getCapacidadPasajerosHora() { 
+        return capacidadPasajerosHora;
+    }
+    public void setCapacidadPasajerosHora(int capacidadPasajerosHora) { 
+        this.capacidadPasajerosHora = capacidadPasajerosHora;
+    }
 
     public String imprimir() {
         return nombre + " (" + idEstacion + ")";
