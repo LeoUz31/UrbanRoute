@@ -11,7 +11,7 @@ package urbanroute.hash;
  */
 public class CalculadorHash {
 
-    public int calcularIndice(String clave, int capacidad) {
+    public static int calcularIndice(String clave, int capacidad) {
         int suma = 0;
         int i = 0;
         while (i < clave.length()) {

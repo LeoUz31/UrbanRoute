@@ -18,7 +18,7 @@ import urbanroute.estructuras.Nodo;
 public class TablaHash {
 
     /** Cantidad de cubetas (no limita la cantidad de estaciones). */
-    // Número 31 es primo, elegir este o 37.
+    /** Las buenas prácticas en bucket sort indican usar números primos, según el número posible de estaciones, elegí 31, podría arreglarse con un reSize */
     public static final int CUBETAS = 31;
 
     private ListaEnlazada<ListaEnlazada<Estacion>> cubetas;
